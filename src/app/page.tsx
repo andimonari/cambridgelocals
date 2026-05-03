@@ -1,3 +1,8 @@
+import Link from "next/link"
+import { db } from "@/lib/db"
+import { ROUTES } from "@/lib/routes"
+import { SiteNav } from "@/components/SiteNav"
+
 const valueProps = [
   {
     title: "Neighbourhood Guides",
@@ -23,32 +28,22 @@ const valueProps = [
       "From Freshers' Week to Finals, Cambridge students share what they wish they'd known — accommodation, libraries, sports, and social life.",
     icon: "🎓",
   },
-];
+]
 
-const experts = [
-  {
-    name: "Dr. Sarah Chen",
-    role: "University lecturer · 8 years in Cambridge",
-    topics: ["Best libraries by subject", "Cycling routes from West Cambridge", "Quiet spots during exam term"],
-    avatar: "SC",
-  },
-  {
-    name: "James Okafor",
-    role: "Software engineer at ARM · Moved from Lagos",
-    topics: ["Tech cluster neighbourhoods", "Best estates for families", "International community groups"],
-    avatar: "JO",
-  },
-  {
-    name: "Priya Sharma",
-    role: "PhD student, Fitzwilliam College · 3 years in Cambridge",
-    topics: ["Budget eating as a student", "College life vs. self-catering", "Weekend trips from Cambridge"],
-    avatar: "PS",
-  },
-];
+export default async function HomePage() {
+  const experts = await db.expert.findMany({
+    take: 3,
+    orderBy: { createdAt: "asc" },
+    include: {
+      guides: {
+        where: { publishedAt: { not: null } },
+        orderBy: { publishedAt: "desc" },
+        take: 3,
+        include: { category: true },
+      },
+    },
+  })
 
-import { SiteNav } from "@/components/SiteNav"
-
-export default function HomePage() {
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <SiteNav />
@@ -69,12 +64,12 @@ export default function HomePage() {
               postcard, and professionals relocating to the city.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <a
-                href="#guides"
+              <Link
+                href={ROUTES.guides}
                 className="inline-flex items-center justify-center rounded-lg bg-indigo-600 text-white font-medium px-6 py-3 hover:bg-indigo-700 transition-colors"
               >
                 Explore guides
-              </a>
+              </Link>
               <a
                 href="#share"
                 className="inline-flex items-center justify-center rounded-lg border border-gray-300 text-gray-700 font-medium px-6 py-3 hover:bg-gray-50 transition-colors"
@@ -118,6 +113,14 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
+            <div className="text-center mt-10">
+              <Link
+                href={ROUTES.guides}
+                className="inline-flex items-center justify-center rounded-lg border border-indigo-200 text-indigo-600 font-medium px-5 py-2.5 text-sm hover:bg-indigo-50 transition-colors"
+              >
+                Browse all guides →
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -133,32 +136,50 @@ export default function HomePage() {
                 what they know.
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {experts.map((expert) => (
-                <div
-                  key={expert.name}
-                  className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-4"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-semibold flex items-center justify-center text-sm shrink-0">
-                      {expert.avatar}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900 text-sm">{expert.name}</p>
-                      <p className="text-xs text-gray-500">{expert.role}</p>
-                    </div>
-                  </div>
-                  <ul className="space-y-1.5">
-                    {expert.topics.map((topic) => (
-                      <li key={topic} className="flex items-start gap-2 text-sm text-gray-600">
-                        <span className="text-indigo-400 mt-0.5 shrink-0">→</span>
-                        {topic}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
+            {experts.length === 0 ? (
+              <p className="text-center text-gray-400">No experts yet — check back soon.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {experts.map((expert) => {
+                  const initials = expert.name
+                    .split(" ")
+                    .map((w) => w[0])
+                    .join("")
+                    .toUpperCase()
+                    .slice(0, 2)
+
+                  return (
+                    <Link
+                      key={expert.id}
+                      href={ROUTES.expert(expert.slug)}
+                      className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-4 hover:border-indigo-200 hover:shadow-sm transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-semibold flex items-center justify-center text-sm shrink-0">
+                          {initials}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900 text-sm">{expert.name}</p>
+                          <p className="text-xs text-gray-500">{expert.role}</p>
+                        </div>
+                      </div>
+                      {expert.guides.length > 0 ? (
+                        <ul className="space-y-1.5">
+                          {expert.guides.map((guide) => (
+                            <li key={guide.id} className="flex items-start gap-2 text-sm text-gray-600">
+                              <span className="text-indigo-400 mt-0.5 shrink-0">→</span>
+                              {guide.title}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-xs text-gray-400 italic">No published guides yet.</p>
+                      )}
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </section>
 
@@ -170,12 +191,12 @@ export default function HomePage() {
               <p className="text-indigo-100 text-sm mb-6">
                 Browse hundreds of guides, tips, and insider recommendations from local experts.
               </p>
-              <a
-                href="#guides"
+              <Link
+                href={ROUTES.guides}
                 className="inline-flex items-center justify-center rounded-lg bg-white text-indigo-700 font-medium px-5 py-2.5 text-sm hover:bg-indigo-50 transition-colors"
               >
                 Browse guides
-              </a>
+              </Link>
             </div>
             <div className="rounded-xl border border-gray-200 p-8">
               <h3 className="text-xl font-bold text-gray-900 mb-2">Share your knowledge</h3>
@@ -183,12 +204,12 @@ export default function HomePage() {
                 Know Cambridge well? Help newcomers and visitors by contributing guides on
                 topics you know.
               </p>
-              <a
-                href="#share"
+              <Link
+                href={ROUTES.signIn}
                 className="inline-flex items-center justify-center rounded-lg bg-gray-900 text-white font-medium px-5 py-2.5 text-sm hover:bg-gray-700 transition-colors"
               >
                 Become an expert
-              </a>
+              </Link>
             </div>
           </div>
         </section>
@@ -200,8 +221,8 @@ export default function HomePage() {
           <span className="font-medium text-gray-700">Cambridge Experts</span>
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
             <a href="#" className="hover:text-gray-900 transition-colors">About</a>
-            <a href="#" className="hover:text-gray-900 transition-colors">Guides</a>
-            <a href="#" className="hover:text-gray-900 transition-colors">Experts</a>
+            <Link href={ROUTES.guides} className="hover:text-gray-900 transition-colors">Guides</Link>
+            <a href="#experts" className="hover:text-gray-900 transition-colors">Experts</a>
             <a href="#" className="hover:text-gray-900 transition-colors">Contact</a>
             <a href="#" className="hover:text-gray-900 transition-colors">Privacy</a>
           </nav>
@@ -209,5 +230,5 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-  );
+  )
 }

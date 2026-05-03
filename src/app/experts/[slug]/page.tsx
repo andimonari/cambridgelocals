@@ -2,12 +2,13 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { db } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
+import type { Metadata } from "next"
 
 interface Props {
   params: Promise<{ slug: string }>
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const expert = await db.expert.findUnique({ where: { slug } })
   if (!expert) return {}
@@ -90,7 +91,12 @@ export default async function ExpertProfilePage({ params }: Props) {
                   <p className="text-xs text-indigo-600 font-medium mb-1">
                     {guide.category.name}
                   </p>
-                  <p className="font-medium text-gray-900">{guide.title}</p>
+                  <Link
+                    href={ROUTES.guide(guide.slug)}
+                    className="font-medium text-gray-900 hover:text-indigo-600 transition-colors"
+                  >
+                    {guide.title}
+                  </Link>
                   {guide.publishedAt && (
                     <p className="text-xs text-gray-400 mt-1">
                       {new Date(guide.publishedAt).toLocaleDateString("en-GB", {

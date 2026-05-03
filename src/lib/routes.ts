@@ -5,5 +5,6 @@ export const ROUTES = {
   newGuide: "/dashboard/guides/new",
   expert: (slug: string) => `/experts/${slug}`,
   guide: (slug: string) => `/guides/${slug}`,
+  guides: "/guides",
   adminGuides: "/admin/guides",
 } as const

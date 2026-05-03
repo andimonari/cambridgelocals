@@ -13,9 +13,9 @@ export async function SiteNav() {
         </Link>
         <div className="flex items-center gap-4">
           <nav className="hidden sm:flex gap-6 text-sm text-gray-500">
-            <a href={`${ROUTES.home}#guides`} className="hover:text-gray-900 transition-colors">
+            <Link href={ROUTES.guides} className="hover:text-gray-900 transition-colors">
               Guides
-            </a>
+            </Link>
             <a href={`${ROUTES.home}#experts`} className="hover:text-gray-900 transition-colors">
               Experts
             </a>
