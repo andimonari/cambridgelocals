@@ -4,6 +4,7 @@ import Link from "next/link"
 import { db } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import { GuideStatus } from "@/generated/prisma/client"
+import { formatDisplayName } from "@/lib/display-name"
 
 export const metadata = {
   title: "Dashboard — Cambridge Locals",
@@ -62,7 +63,7 @@ export default async function DashboardPage() {
         {expert && (
           <div className="mb-8 p-4 rounded-lg border border-gray-200 flex items-center justify-between">
             <div>
-              <p className="font-medium text-gray-900">{expert.name}</p>
+              <p className="font-medium text-gray-900">{formatDisplayName(expert.name)}</p>
               <p className="text-sm text-gray-500">{expert.role}</p>
             </div>
             <div className="flex items-center gap-3">

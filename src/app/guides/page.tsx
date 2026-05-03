@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { db } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import { SiteNav } from "@/components/SiteNav"
+import { formatDisplayName } from "@/lib/display-name"
 
 export const metadata: Metadata = {
   title: "Guides — Cambridge Locals",
@@ -133,12 +134,7 @@ export default async function GuidesPage({ searchParams }: Props) {
         ) : (
           <ul className="divide-y divide-gray-100">
             {guides.map((guide) => {
-              const initials = guide.author.name
-                .split(" ")
-                .map((w) => w[0])
-                .join("")
-                .toUpperCase()
-                .slice(0, 2)
+              const initials = guide.author.name.trim().split(/\s+/)[0]?.[0]?.toUpperCase() ?? ""
 
               return (
                 <li key={guide.id} className="py-6">
@@ -173,7 +169,7 @@ export default async function GuidesPage({ searchParams }: Props) {
                       href={ROUTES.expert(guide.author.slug)}
                       className="text-xs text-gray-500 hover:text-gray-900 transition-colors"
                     >
-                      {guide.author.name}
+                      {formatDisplayName(guide.author.name)}
                     </Link>
                     {guide.publishedAt && (
                       <>

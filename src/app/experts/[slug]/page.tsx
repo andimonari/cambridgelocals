@@ -3,6 +3,7 @@ import Link from "next/link"
 import { db } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import type { Metadata } from "next"
+import { formatDisplayName } from "@/lib/display-name"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -14,21 +15,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const expert = await db.expert.findUnique({ where: { slug } })
   if (!expert) return {}
-  const description = expert.bio ?? `${expert.name} shares local Cambridge insights.`
+  const displayName = formatDisplayName(expert.name)
+  const description = expert.bio ?? `${displayName} shares local Cambridge insights.`
   const canonicalUrl = `${baseUrl}/experts/${slug}`
   return {
-    title: expert.name,
+    title: displayName,
     description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
       type: "profile",
-      title: expert.name,
+      title: displayName,
       description,
       url: canonicalUrl,
     },
     twitter: {
       card: "summary",
-      title: expert.name,
+      title: displayName,
       description,
     },
   }
@@ -50,17 +52,13 @@ export default async function ExpertProfilePage({ params }: Props) {
 
   if (!expert) notFound()
 
-  const initials = expert.name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
+  const initials = expert.name.trim().split(/\s+/)[0]?.[0]?.toUpperCase() ?? ""
+  const displayName = formatDisplayName(expert.name)
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: expert.name,
+    name: displayName,
     description: expert.bio ?? undefined,
     jobTitle: expert.role,
     url: `${baseUrl}/experts/${expert.slug}`,
@@ -93,7 +91,7 @@ export default async function ExpertProfilePage({ params }: Props) {
             {initials}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{expert.name}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
             <p className="text-gray-500 mt-1">{expert.role}</p>
             {expert.location && (
               <p className="text-sm text-indigo-600 mt-1">{expert.location.name}, Cambridge</p>

@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import { SiteNav } from "@/components/SiteNav"
 import { renderMarkdown } from "@/lib/markdown"
+import { formatDisplayName } from "@/lib/display-name"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: guide.title,
       description,
       url: canonicalUrl,
-      authors: [guide.author.name],
+      authors: [formatDisplayName(guide.author.name)],
       publishedTime: guide.publishedAt?.toISOString(),
     },
     twitter: {
@@ -50,12 +51,7 @@ export default async function GuideDetailPage({ params }: Props) {
 
   if (!guide) notFound()
 
-  const initials = guide.author.name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
+  const initials = guide.author.name.trim().split(/\s+/)[0]?.[0]?.toUpperCase() ?? ""
 
   const bodyHtml = renderMarkdown(guide.body)
 
@@ -66,7 +62,7 @@ export default async function GuideDetailPage({ params }: Props) {
     description: guide.body.replace(/[#*>`_\-\[\]]/g, "").trim().slice(0, 160),
     author: {
       "@type": "Person",
-      name: guide.author.name,
+      name: formatDisplayName(guide.author.name),
       url: `${baseUrl}/experts/${guide.author.slug}`,
     },
     datePublished: guide.publishedAt?.toISOString(),
@@ -132,7 +128,7 @@ export default async function GuideDetailPage({ params }: Props) {
               href={ROUTES.expert(guide.author.slug)}
               className="font-medium text-gray-900 hover:text-indigo-600 transition-colors text-sm"
             >
-              {guide.author.name}
+              {formatDisplayName(guide.author.name)}
             </Link>
             <p className="text-xs text-gray-400 mt-0.5">{guide.author.role}</p>
           </div>

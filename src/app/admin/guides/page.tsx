@@ -4,6 +4,7 @@ import Link from "next/link"
 import { db } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import AdminGuideActions from "./AdminGuideActions"
+import { formatDisplayName } from "@/lib/display-name"
 
 export const metadata = {
   title: "Admin — Guide Review — Cambridge Locals",
@@ -62,7 +63,7 @@ export default async function AdminGuidesPage() {
                   <div className="min-w-0">
                     <h2 className="font-semibold text-gray-900 text-base truncate">{guide.title}</h2>
                     <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                      <span>by {guide.author.name}</span>
+                      <span>by {formatDisplayName(guide.author.name)}</span>
                       <span>·</span>
                       <span>{guide.category.name}</span>
                       {guide.location && (

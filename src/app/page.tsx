@@ -2,6 +2,7 @@ import Link from "next/link"
 import { db } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import { SiteNav } from "@/components/SiteNav"
+import { formatDisplayName } from "@/lib/display-name"
 
 const valueProps = [
   {
@@ -141,12 +142,8 @@ export default async function HomePage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {experts.map((expert) => {
-                  const initials = expert.name
-                    .split(" ")
-                    .map((w) => w[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)
+                  const displayName = formatDisplayName(expert.name)
+                  const initials = expert.name.trim().split(/\s+/)[0]?.[0]?.toUpperCase() ?? ""
 
                   return (
                     <Link
@@ -159,7 +156,7 @@ export default async function HomePage() {
                           {initials}
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900 text-sm">{expert.name}</p>
+                          <p className="font-semibold text-gray-900 text-sm">{displayName}</p>
                           <p className="text-xs text-gray-500">{expert.role}</p>
                         </div>
                       </div>
