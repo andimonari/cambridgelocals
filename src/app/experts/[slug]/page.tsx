@@ -48,6 +48,7 @@ export default async function ExpertProfilePage({ params }: Props) {
         orderBy: { publishedAt: "desc" },
         include: { category: true },
       },
+      reviews: { orderBy: { createdAt: "desc" } },
     },
   })
 
@@ -93,6 +94,29 @@ export default async function ExpertProfilePage({ params }: Props) {
           <p className="text-gray-600 leading-relaxed mb-6 border-l-2 border-indigo-100 pl-4">
             {expert.bio}
           </p>
+        )}
+
+        {/* Expert reviews */}
+        {expert.reviews.length > 0 && (
+          <section className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Reviews
+              <span className="ml-2 text-sm font-normal text-gray-400">({expert.reviews.length})</span>
+            </h2>
+            <ul className="space-y-4">
+              {expert.reviews.map((review) => (
+                <li key={review.id} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="font-medium text-gray-800 text-sm">{review.authorName}</span>
+                    <span className="text-amber-400 tracking-tight" aria-label={`${review.rating} out of 5 stars`}>
+                      {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed">{review.body}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
 
         {/* Guides */}

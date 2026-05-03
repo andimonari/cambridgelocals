@@ -47,7 +47,12 @@ export default async function GuideDetailPage({ params }: Props) {
   const { slug } = await params
   const guide = await db.guide.findUnique({
     where: { slug, publishedAt: { not: null } },
-    include: { author: { include: { location: true } }, category: true, location: true },
+    include: {
+      author: { include: { location: true } },
+      category: true,
+      location: true,
+      reviews: { orderBy: { createdAt: "desc" } },
+    },
   })
 
   if (!guide) notFound()
@@ -163,6 +168,29 @@ export default async function GuideDetailPage({ params }: Props) {
           className="text-base"
           dangerouslySetInnerHTML={{ __html: bodyHtml }}
         />
+
+        {/* Reviews */}
+        {guide.reviews.length > 0 && (
+          <section className="mt-12 pt-8 border-t border-gray-100">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              Reader reviews
+              <span className="ml-2 text-sm font-normal text-gray-400">({guide.reviews.length})</span>
+            </h2>
+            <ul className="space-y-6">
+              {guide.reviews.map((review) => (
+                <li key={review.id} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-gray-800 text-sm">{review.authorName}</span>
+                    <span className="text-amber-400 tracking-tight" aria-label={`${review.rating} out of 5 stars`}>
+                      {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed">{review.body}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {/* Back link */}
         <div className="mt-12 pt-8 border-t border-gray-100">
