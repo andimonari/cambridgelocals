@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { db } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import { SiteNav } from "@/components/SiteNav"
@@ -51,15 +52,25 @@ export default async function HomePage() {
 
       <main>
         {/* Hero */}
-        <section className="bg-gradient-to-b from-slate-50 to-white px-4 sm:px-6 pt-20 pb-24 text-center">
-          <div className="max-w-3xl mx-auto">
-            <p className="text-sm font-semibold tracking-widest text-indigo-600 uppercase mb-4">
+        <section className="relative overflow-hidden bg-slate-900 px-4 sm:px-6 pt-20 pb-24 text-center min-h-[520px] flex items-center">
+          <Image
+            src="/images/hero-river-cam.jpg"
+            alt="Punting on the River Cam in Cambridge"
+            fill
+            className="object-cover"
+            sizes="100vw"
+            loading="eager"
+            fetchPriority="high"
+          />
+          <div className="absolute inset-0 bg-slate-900/55" aria-hidden="true" />
+          <div className="relative z-10 max-w-3xl mx-auto w-full">
+            <p className="text-sm font-semibold tracking-widest text-indigo-300 uppercase mb-4">
               Local knowledge, shared openly
             </p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6 leading-tight">
               Cambridge, explained by people who live here
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto mb-10">
+            <p className="text-lg sm:text-xl text-slate-200 max-w-2xl mx-auto mb-10">
               Local experts share what they know about Cambridge, England — for
               students arriving at university, tourists wanting to go beyond the
               postcard, and professionals relocating to the city.
@@ -73,7 +84,7 @@ export default async function HomePage() {
               </Link>
               <a
                 href="#share"
-                className="inline-flex items-center justify-center rounded-lg border border-gray-300 text-gray-700 font-medium px-6 py-3 hover:bg-gray-50 transition-colors"
+                className="inline-flex items-center justify-center rounded-lg border border-white/40 text-white font-medium px-6 py-3 hover:bg-white/10 transition-colors"
               >
                 Share your knowledge
               </a>
@@ -88,6 +99,39 @@ export default async function HomePage() {
             <span className="flex items-center gap-2"><span className="text-indigo-500">✓</span> Tourists &amp; visitors</span>
             <span className="flex items-center gap-2"><span className="text-indigo-500">✓</span> Professionals relocating</span>
             <span className="flex items-center gap-2"><span className="text-indigo-500">✓</span> Families moving to the area</span>
+          </div>
+        </section>
+
+        {/* Cambridge photo strip */}
+        <section className="px-4 sm:px-6 py-10">
+          <div className="max-w-6xl mx-auto grid grid-cols-3 gap-2 sm:gap-3 rounded-xl overflow-hidden">
+            <div className="relative h-36 sm:h-48">
+              <Image
+                src="/images/cambridge-cobblestone.jpg"
+                alt="Historic cobblestone alley in Cambridge"
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 33vw, (max-width: 1024px) 33vw, 384px"
+              />
+            </div>
+            <div className="relative h-36 sm:h-48">
+              <Image
+                src="/images/cambridge-architecture.jpg"
+                alt="Historic university architecture in Cambridge"
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 33vw, (max-width: 1024px) 33vw, 384px"
+              />
+            </div>
+            <div className="relative h-36 sm:h-48">
+              <Image
+                src="/images/cambridge-river-evening.jpg"
+                alt="River Cam on a peaceful summer evening"
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 33vw, (max-width: 1024px) 33vw, 384px"
+              />
+            </div>
           </div>
         </section>
 

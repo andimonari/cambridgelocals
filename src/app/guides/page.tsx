@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import type { Metadata } from "next"
 import { db } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
@@ -56,8 +57,21 @@ export default async function GuidesPage({ searchParams }: Props) {
           <span className="text-gray-600">Guides</span>
         </nav>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Guides</h1>
-        <p className="text-gray-500 mb-8">Local knowledge from Cambridge experts.</p>
+        {/* Page header with Cambridge image */}
+        <div className="relative rounded-xl overflow-hidden h-44 sm:h-56 mb-10">
+          <Image
+            src="/images/cambridge-river-evening.jpg"
+            alt="Peaceful summer evening by the River Cam in Cambridge"
+            fill
+            className="object-cover"
+            sizes="(max-width: 1024px) calc(100vw - 2rem), 896px"
+            loading="eager"
+          />
+          <div className="absolute inset-0 bg-slate-900/50 flex flex-col justify-end p-6 sm:p-8">
+            <h1 className="text-3xl font-bold text-white mb-1">Guides</h1>
+            <p className="text-slate-200 text-sm">Local knowledge from Cambridge experts.</p>
+          </div>
+        </div>
 
         {/* Category filter */}
         <div className="mb-4">

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import type { Metadata } from "next"
 import { db } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
@@ -91,6 +92,17 @@ export default async function GuideDetailPage({ params }: Props) {
           <span aria-hidden>›</span>
           <span className="text-gray-600 truncate max-w-xs">{guide.title}</span>
         </nav>
+
+        {/* Feature image */}
+        <div className="relative w-full h-48 sm:h-64 rounded-xl overflow-hidden mb-8">
+          <Image
+            src="/images/cambridge-architecture.jpg"
+            alt="Historic Cambridge architecture"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) calc(100vw - 2rem), 768px"
+          />
+        </div>
 
         {/* Category + location tags */}
         <div className="flex items-center gap-2 mb-4 flex-wrap">
