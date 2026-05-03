@@ -8,13 +8,29 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgeexperts.com"
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const expert = await db.expert.findUnique({ where: { slug } })
   if (!expert) return {}
+  const description = expert.bio ?? `${expert.name} shares local Cambridge insights.`
+  const canonicalUrl = `${baseUrl}/experts/${slug}`
   return {
-    title: `${expert.name} — Cambridge Experts`,
-    description: expert.bio ?? `${expert.name} shares Cambridge insights.`,
+    title: expert.name,
+    description,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      type: "profile",
+      title: expert.name,
+      description,
+      url: canonicalUrl,
+    },
+    twitter: {
+      card: "summary",
+      title: expert.name,
+      description,
+    },
   }
 }
 
@@ -41,8 +57,22 @@ export default async function ExpertProfilePage({ params }: Props) {
     .toUpperCase()
     .slice(0, 2)
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: expert.name,
+    description: expert.bio ?? undefined,
+    jobTitle: expert.role,
+    url: `${baseUrl}/experts/${expert.slug}`,
+    ...(expert.location ? { address: { "@type": "Place", name: `${expert.location.name}, Cambridge` } } : {}),
+  }
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Nav */}
       <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">

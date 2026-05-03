@@ -10,6 +10,8 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgeexperts.com"
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const guide = await db.guide.findUnique({
@@ -17,9 +19,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     include: { author: true },
   })
   if (!guide) return {}
+  const description = guide.body.replace(/[#*>`_\-\[\]]/g, "").trim().slice(0, 160)
+  const canonicalUrl = `${baseUrl}/guides/${slug}`
   return {
-    title: `${guide.title} — Cambridge Experts`,
-    description: guide.body.replace(/[#*>`_\-\[\]]/g, "").trim().slice(0, 160),
+    title: guide.title,
+    description,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      type: "article",
+      title: guide.title,
+      description,
+      url: canonicalUrl,
+      authors: [guide.author.name],
+      publishedTime: guide.publishedAt?.toISOString(),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: guide.title,
+      description,
+    },
   }
 }
 
@@ -41,8 +59,31 @@ export default async function GuideDetailPage({ params }: Props) {
 
   const bodyHtml = renderMarkdown(guide.body)
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: guide.title,
+    description: guide.body.replace(/[#*>`_\-\[\]]/g, "").trim().slice(0, 160),
+    author: {
+      "@type": "Person",
+      name: guide.author.name,
+      url: `${baseUrl}/experts/${guide.author.slug}`,
+    },
+    datePublished: guide.publishedAt?.toISOString(),
+    url: `${baseUrl}/guides/${guide.slug}`,
+    publisher: {
+      "@type": "Organization",
+      name: "Cambridge Experts",
+      url: baseUrl,
+    },
+  }
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <SiteNav />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
