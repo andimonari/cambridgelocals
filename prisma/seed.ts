@@ -1169,8 +1169,406 @@ The central city is walkable for most shopping. Tesco Express, Co-op, and variou
     },
   });
 
+  // ── Guides (new — undercovered categories) ────────────────────
+
+  // Sports & Fitness
+  await db.guide.upsert({
+    where: { slug: "jesus-green-lido-cambridge" },
+    update: {},
+    create: {
+      title: "Jesus Green Lido: Open-Air Swimming in the City Centre",
+      slug: "jesus-green-lido-cambridge",
+      status: "published",
+      body: `Jesus Green Lido is one of Cambridge's most distinctive amenities — a 90-metre outdoor swimming pool on the banks of the Cam, open from early May through mid-September. It is free to enter and has been a Cambridge institution since 1923.
+
+## What to Expect
+
+The pool is 90 metres long and unheated, which means water temperatures depend on the season and the weather. In late May and early June it is bracing; by August it can reach a genuinely comfortable temperature. The pool has separate shallow and deep sections and is popular for lane swimming in the morning and more casual use in the afternoon.
+
+The changing facilities are basic — lockers exist but bring your own padlock. Arrive early on warm weekends; the pool reaches capacity and will close its gates.
+
+## Surrounding Park
+
+Jesus Green itself is one of the most used open spaces in Cambridge: flat, well-maintained, and long enough to run the full length alongside the river. The adjacent Midsummer Common is connected and hosts the annual Strawberry Fair and Midsummer Fair.
+
+## Getting There
+
+Jesus Green is north of the city centre, accessed from Victoria Avenue or Jesus Lock. It is a ten-minute walk from the Grafton Centre and easily cyclable from almost anywhere in Cambridge.
+
+## Cost
+
+Free. No booking required. Bring a towel and arrive prepared for variable water temperatures.`,
+      authorId: rachel.id,
+      categoryId: sportsFitness.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-04-10"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "parkrun-cambridge-guide" },
+    update: {},
+    create: {
+      title: "Parkrun in Cambridge: Free Running Every Saturday Morning",
+      slug: "parkrun-cambridge-guide",
+      status: "published",
+      body: `Cambridge has three Parkrun events, each free to enter, timed, and open to anyone with a barcode. Saturday 9am, 5km. This is one of the most effective ways to get fit and meet people in the city simultaneously.
+
+## Coldham's Common (CB1)
+
+The most central Cambridge Parkrun, held on Coldham's Common off Barnwell Road. The course is flat and mostly on grass with some tarmac paths — fast in dry weather, muddy in autumn and winter. Typically draws 200–400 runners depending on the season.
+
+Atmosphere is notably mixed: experienced runners chasing PBs alongside people doing their first ever 5km. The post-run café culture at the nearby Cow Hollow or various local cafés has developed organically.
+
+## Milton Country Park
+
+A short drive or cycle from the city, Milton Parkrun takes place in a pleasant country park setting with lake views and a mix of path types. Better drainage than Coldham's Common, which matters in winter.
+
+## Gog Magog Hills
+
+The hilliest of the Cambridge area options — relatively unusual in this flat part of the country. The views from the escarpment make the extra effort worthwhile.
+
+## How to Register
+
+Register once at parkrun.org.uk, receive a barcode, and show up. Print your barcode or use the app. Results are sent by email within a few hours and your times are tracked permanently. Volunteering is straightforward and valued — the events depend on a roster of weekly volunteers.`,
+      authorId: rachel.id,
+      categoryId: sportsFitness.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-04-16"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "cambridge-rowing-guide" },
+    update: {},
+    create: {
+      title: "Rowing in Cambridge: Getting on the Water Without a College",
+      slug: "cambridge-rowing-guide",
+      status: "published",
+      body: `Cambridge is one of Britain's great rowing cities — the Cam's straightness and the concentration of university boathouses make it ideal. Most of the visible rowing is collegiate and university-affiliated, but there are accessible routes for anyone who wants to get on the water regardless of college membership.
+
+## City of Cambridge Rowing Club
+
+The City of Cambridge Rowing Club, based at their boathouse on the river near Chesterton, is the main route into rowing for non-university residents. They run beginner courses in spring and autumn, adult recreational rowing, and competitive programmes for those who want race experience. Membership is around £200–350 per year depending on category — less than most Cambridge gyms.
+
+Learn to Row courses run for around six weeks and cover the basics from bank-side to single sculling. Equipment is provided during the course.
+
+## Bumps Racing
+
+Cambridge's traditional form of competitive rowing is Bumps — a format unique to the Cam and the Isis in Oxford, where boats start in a line and attempt to catch and bump the boat ahead. The university Bumps events (Lents and Mays) are not open to non-university rowers, but City Bumps in autumn includes club members.
+
+## The River
+
+The upper Cam (above Jesus Lock) is where most rowing takes place. It is shared with punts, kayaks, and narrow boats, which requires constant vigilance. Priority conventions exist but are not universally understood. Sunday mornings are the best time for a clear river.`,
+      authorId: oliver.id,
+      categoryId: sportsFitness.id,
+      locationId: chesterton.id,
+      publishedAt: new Date("2026-04-20"),
+    },
+  });
+
+  // Shopping
+  await db.guide.upsert({
+    where: { slug: "cambridge-market-square-guide" },
+    update: {},
+    create: {
+      title: "Cambridge Market Square: What to Buy and When to Go",
+      slug: "cambridge-market-square-guide",
+      status: "published",
+      body: `Cambridge Market has been trading in the centre of the city since the Middle Ages, and in its current form it remains one of the most genuinely useful daily markets in England. Unlike many town centre markets that have drifted towards tourist souvenirs, the Cambridge Market retains a strong core of traders selling things people actually need.
+
+## The Stalls
+
+The market runs Monday to Saturday, with some stalls present daily and others appearing only on certain days. The core traders include several fruit and vegetable stalls (competitive pricing, good seasonal range), a cheese stall with a better selection than most supermarkets, a fish stall with fresh Cambridge-area supply, and various hot food vans for lunch.
+
+The secondhand books section on the north side is one of Cambridge's quiet pleasures. The range is variable and depends on the week, but paperback fiction, local history, and academic titles often appear at excellent prices.
+
+## What the Market Does Well
+
+Fresh produce pricing is significantly better than the Grand Arcade supermarkets for most fruit and vegetables. Buying from the market rather than a supermarket for weekly veg is genuinely cost-effective.
+
+The craft and maker stalls are stronger on Saturdays — prints, jewellery, ceramics, and preserved foods from local producers.
+
+## What the Market Does Less Well
+
+The souvenir and tourist section has grown over the years and takes up more of the square than residents would prefer. Navigate around it.
+
+## Practical
+
+The market is busiest between 10am and 1pm. Arrive before 10am for the full choice at the food stalls. The surrounding streets become very congested at lunchtime — approaching on foot or by bike is easier than by car or bus.`,
+      authorId: marcus.id,
+      categoryId: shopping.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-04-05"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "cambridge-covered-market-guide" },
+    update: {},
+    create: {
+      title: "The Cambridge Covered Market: Artisan Shops Worth Exploring",
+      slug: "cambridge-covered-market-guide",
+      status: "published",
+      body: `The Cambridge Covered Market — accessed from Market Street or from inside the Grand Arcade — is one of the city's most overlooked commercial spaces. A network of Victorian covered passages, it houses an eclectic mix of independent traders that has resisted the homogenisation of the surrounding high street.
+
+## What's Inside
+
+The mix changes slowly over time, but at the time of writing the covered market contains: a well-stocked map and travel bookshop, two independent record shops (one new, one secondhand), a stamp and coin dealer, a fabric shop, several made-to-order jewellers, a haberdashery, a bespoke leather goods maker, and several cafés and sandwich counters.
+
+The cheese shop inside the covered market is one of the best in Cambridge — smaller than the market square stall but with a more focused range and staff who know the stock in detail.
+
+## Why It Matters
+
+The covered market represents a form of retail that is increasingly rare: small, specialist, independent. Most of the traders have been there for decades and have deep knowledge of their area. This is where you go for something specific that a chain store would not stock, or when you want advice from someone who has spent years in a subject.
+
+## Hours and Access
+
+The covered market is open six days a week, typically 9am–5:30pm Monday to Saturday. Some individual traders keep shorter hours. The market is accessible and undercover, which makes it a practical destination year-round.`,
+      authorId: marcus.id,
+      categoryId: shopping.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-04-09"),
+    },
+  });
+
+  // Culture & Museums
+  await db.guide.upsert({
+    where: { slug: "kettles-yard-cambridge-guide" },
+    update: {},
+    create: {
+      title: "Kettle's Yard: The Most Personal Gallery in Cambridge",
+      slug: "kettles-yard-cambridge-guide",
+      status: "published",
+      body: `Kettle's Yard, on Castle Street near the Castle Hill roundabout, is one of the most distinctive art spaces in Britain. It was established by Jim and Helen Ede as a living space and open house for artists and students in the 1950s, and it remains today a combination of gallery and house museum that feels unlike anywhere else.
+
+## The House
+
+The original house — four cottages converted into a single flowing space — is kept as it was when the Edes lived here: pictures hung to Jim's exact specifications, pebbles arranged on windowsills, natural light falling on carefully positioned objects. The collection is mid-century British modernism: Brancusi, Gaudier-Brzeska, Ben Nicholson, Christopher Wood, Alfred Wallis. But it is the hanging and arrangement — the way a Miró sits above a spiral of stones, or a Nicholson catches the morning light — that makes the house remarkable.
+
+The house can only be visited in small groups during timed admission slots. Book in advance on busy days.
+
+## The Gallery Extension
+
+The contemporary gallery extension (reopened 2018) sits adjacent to the house and hosts a changing programme of contemporary exhibitions. This is separate from the house admission and is free. The programming is consistently ambitious and tends to avoid the predictable.
+
+## Practical
+
+Castle Street is a short walk from Magdalene Bridge. The house is closed on Mondays. Gallery and cafe hours vary — check the website before visiting. The café is small but good.
+
+Free entry to the gallery; house visits are free but require a timed slot from the desk.`,
+      authorId: david.id,
+      categoryId: cultureMuseums.id,
+      locationId: castleHill.id,
+      publishedAt: new Date("2026-04-19"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "adc-theatre-cambridge-guide" },
+    update: {},
+    create: {
+      title: "The ADC Theatre: Cambridge's Student Drama Scene",
+      slug: "adc-theatre-cambridge-guide",
+      status: "published",
+      body: `The ADC Theatre on Park Street is the oldest university playhouse in England and the centre of Cambridge's drama world. It produces more than forty productions a year, entirely student-run, and has served as the proving ground for a disproportionate number of people who went on to careers in theatre, television, and film.
+
+## What's On
+
+The main house seats around 200 and runs a year-round programme: Shakespeare, new writing, musicals, comedy revues, and late-night shows after the main evening performance. The Corpus Playroom on Bene't Street, which is also part of the ADC umbrella, provides a more intimate 50-seat space for experimental and new writing.
+
+Tickets are inexpensive — typically £8–14 for the main house — making the ADC one of the best-value cultural options in Cambridge. Quality varies, but the standard is often higher than prices would suggest, and you are occasionally watching future professionals at a very early point in their careers.
+
+## The Cambridge Footlights
+
+The Footlights revue appears at the ADC each year, typically in late spring before touring to Edinburgh. This is the most visible face of Cambridge comedy and an institution since the 1880s. Past members include John Cleese, Emma Thompson, Hugh Laurie, and a significant portion of the British comedy and drama establishment.
+
+## Booking
+
+The ADC box office is online or by phone. Some shows sell out quickly, particularly the Footlights revue and popular musicals. Booking a few days in advance is sensible for anything in the final week of a run.`,
+      authorId: martin.id,
+      categoryId: cultureMuseums.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-04-24"),
+    },
+  });
+
+  // Nightlife
+  await db.guide.upsert({
+    where: { slug: "cambridge-nightlife-guide-students" },
+    update: {},
+    create: {
+      title: "Cambridge Nightlife: A Practical Guide for Students",
+      slug: "cambridge-nightlife-guide-students",
+      status: "published",
+      body: `Cambridge's nightlife is smaller than its reputation for academic intensity might suggest, but it is more varied than visitors expect. Here is an honest picture of what is available and how to approach it.
+
+## Clubs
+
+**Vinyl** on Sidney Street is the most credible club in the city centre — a basement venue with a proper sound system, focused on dance music, and managed with enough care to maintain a reasonable atmosphere. Guest nights and regular club nights across the week; the Thursday student nights are the most reliably good.
+
+**Fez Club** on Market Passage is a Cambridge institution for better or worse — two floors of different music, consistently busy, uneven in quality but reliable for a full night out when everything else is full. Popular with undergraduates for its capacity and central location.
+
+**Kambar** off King Street is smaller and more focused. Alternative and rock music, a pool table, cheap drinks, and a genuinely local crowd rather than a primarily student one. Good option for those who find the larger clubs uncomfortable.
+
+## Bars
+
+Most of the better Cambridge bars have been mentioned in the pub guides. For later-night drinking, The Regal Wetherspoons on St Andrew's Street is vast, cheap, and unpretentious — the practical option when nothing else is accessible. The Portland Arms in Chesterton has live music most weekends and a local following distinct from the city-centre scene.
+
+## Practical
+
+Cambridge closes early by metropolitan standards. Last entry at most clubs is 2am; last orders are 3am at the latest. Pre-drinking at someone's college or flat is the norm. Panther Taxis is reliable at the end of the night; Uber can be unpredictable at peak hours.`,
+      authorId: james.id,
+      categoryId: nightlife.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-04-21"),
+    },
+  });
+
+  // Parks & Nature
+  await db.guide.upsert({
+    where: { slug: "grantchester-meadows-walk" },
+    update: {},
+    create: {
+      title: "Grantchester Meadows: The Best Walk from Cambridge",
+      slug: "grantchester-meadows-walk",
+      status: "published",
+      body: `The walk from Cambridge to Grantchester along the river Cam is the essential Cambridge walk — flat, beautiful, and easy enough to do in any weather. It takes around forty minutes each way at a relaxed pace and delivers you to one of the most pleasant villages within reach of the city.
+
+## The Route
+
+Start at Silver Street Mill Pond and follow the tow path south along the west bank of the Cam. The path passes through Lammas Land — a common-land meadow with a paddling pool popular with families in summer — and continues through fields and riverside meadows to the Grantchester Meadows themselves.
+
+The meadow path is owned by the National Trust and is open year-round. In summer the long grass is full of wildflowers and the meadow fills with Cambridge residents bringing picnic blankets and bottles of wine. In winter the same path is windswept and beautiful in a different way.
+
+## Grantchester Village
+
+The village itself is compact: a church, a pub, and the Orchard Tea Garden. The Orchard has been hosting Cambridge visitors since 1897 and famously entertained Rupert Brooke, Virginia Woolf, and much of pre-war Bloomsbury. Tea and scones under the apple trees in summer remains as good an afternoon as Cambridge offers.
+
+The Rupert Brooke pub in the village centre serves reliable food and has a good garden. Booking ahead at weekends is sensible.
+
+## Punting
+
+The walk can also be done by punt. Scudamore's operates a one-way punt hire from Silver Street to Grantchester with return by taxi. Punting up against the current is hard work; going downstream on return is faster and more pleasant.
+
+## When to Go
+
+May to September for the full meadow experience. November to February for bracing solitude and unobstructed views. Avoid August weekend afternoons if you want peace.`,
+      authorId: amelia.id,
+      categoryId: parksNature.id,
+      locationId: newnham.id,
+      publishedAt: new Date("2026-04-26"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "cherry-hinton-chalk-pits-guide" },
+    update: {},
+    create: {
+      title: "Cherry Hinton Hall and the Chalk Pits: A Hidden Green Space",
+      slug: "cherry-hinton-chalk-pits-guide",
+      status: "published",
+      body: `Cherry Hinton is an often-overlooked suburb southeast of Cambridge, but it contains one of the city's most distinctive natural spaces: the Cambridge Wildlife Trust chalk pits, adjacent to Cherry Hinton Hall Park. This is a genuinely unusual landscape for East Anglia — exposed chalk grassland with specialist wildflower communities and a different character from the river meadows that define most of Cambridge's open spaces.
+
+## The Chalk Pits
+
+The pits were created by historical quarrying and the exposed south-facing chalk slopes now support a range of chalk-grassland species including several orchids in early summer. The site is managed by the Wildlife Trust and is accessible year-round via a signed path from the Cherry Hinton Hall Park car park.
+
+The orchid flowering season runs from late May through June — pyramid orchids and bee orchids appear reliably in good years. The site is not enormous but the quality of the flora is high for its size.
+
+## Cherry Hinton Hall Park
+
+The surrounding parkland is a straightforward community green space with play equipment, a football pitch, and the Hall itself (used as an event venue). The Cambridge Folk Festival takes place here each July and transforms the park into one of the UK's most beloved music events.
+
+## Getting There
+
+Cherry Hinton Hall is accessible from the Citi 1 bus (towards Addenbrooke's and Trumpington) — stop at Queen Edith's Way, then walk south. By bicycle from the city centre takes around 15–20 minutes via Queen Edith's Way.`,
+      authorId: david.id,
+      categoryId: parksNature.id,
+      locationId: cherryHinton.id,
+      publishedAt: new Date("2026-04-29"),
+    },
+  });
+
+  // ── Reviews ────────────────────────────────────────────────────
+
+  const guideBySlug = async (slug: string) => {
+    const g = await db.guide.findUnique({ where: { slug } });
+    if (!g) throw new Error(`Guide not found: ${slug}`);
+    return g;
+  };
+
+  const expertBySlug = async (slug: string) => {
+    const e = await db.expert.findUnique({ where: { slug } });
+    if (!e) throw new Error(`Expert not found: ${slug}`);
+    return e;
+  };
+
+  // Reviews on guides
+  const cyclingGuide = await guideBySlug("cycling-cambridge-beginners-guide");
+  const cheapEatsGuide = await guideBySlug("best-cheap-eats-cambridge-students");
+  const freshersGuide = await guideBySlug("surviving-freshers-week-cambridge");
+  const eagleGuide = await guideBySlug("the-eagle-cambridge-a-local-guide");
+  const freePresssGuide = await guideBySlug("the-free-press-cambridge-hidden-gem");
+  const botanicGuide = await guideBySlug("cambridge-botanic-garden-guide");
+  const fitzGuide = await guideBySlug("fitzwilliam-museum-visitors-guide");
+  const backsGuide = await guideBySlug("the-backs-cambridge-walking-guide");
+  const rentingGuide = await guideBySlug("renting-in-cambridge-new-arrivals-guide");
+  const puntingGuide = await guideBySlug("punting-in-cambridge-complete-guide");
+  const grantchesterGuide = await guideBySlug("grantchester-meadows-walk");
+  const marketGuide = await guideBySlug("cambridge-market-square-guide");
+
+  // Reviews on experts
+  const priyaExpert = await expertBySlug("priya-sharma");
+  const oliverExpert = await expertBySlug("oliver-chen");
+  const sophieExpert = await expertBySlug("sophie-r");
+  const martinExpert = await expertBySlug("martin-r");
+  const elenaExpert = await expertBySlug("elena-k");
+
+  const reviewSeeds = [
+    // Guide reviews
+    { rating: 5, body: "Exactly what I needed in my first week. The two-lock rule saved my bike within a month — my neighbour ignored it and lost theirs. Brilliant, practical guide.", authorName: "Jamie F.", guideId: cyclingGuide.id },
+    { rating: 5, body: "The falafel van at the market is a game changer. This guide is accurate and the Copper Kettle tip with the student discount is genuinely useful.", authorName: "Priya T.", guideId: cheapEatsGuide.id },
+    { rating: 4, body: "Honest and reassuring. The point about supervision work starting in week one is something nobody told me — I wish I'd read this before arriving.", authorName: "Noah C.", guideId: freshersGuide.id },
+    { rating: 5, body: "The DNA Bar ceiling stopped me in my tracks. The context about the airmen makes it hit completely differently. Superb guide — I've sent it to everyone visiting Cambridge.", authorName: "Margaret H.", guideId: eagleGuide.id },
+    { rating: 5, body: "I've been coming to The Free Press for three years and this description is exactly right. \"Go on a Tuesday evening\" is genuinely the best advice. Nobody should change this pub.", authorName: "Daniel A.", guideId: freePresssGuide.id },
+    { rating: 5, body: "The winter garden tip is inspired — I never would have thought to go in January, but the snowdrops were extraordinary. Completely changed how I use this place.", authorName: "Linh P.", guideId: botanicGuide.id },
+    { rating: 5, body: "I've lived in Cambridge for two years and never been. This finally got me through the door. The Degas pastels are stunning and the Cézanne card players is exactly as described.", authorName: "Thomas W.", guideId: fitzGuide.id },
+    { rating: 4, body: "The timing advice is gold. Got there at 8am on a Tuesday in October and had the King's view entirely to myself. Everyone I know gets there at 2pm in August and complains.", authorName: "Sara K.", guideId: backsGuide.id },
+    { rating: 5, body: "Moved from Vienna last year and this guide described my experience exactly. The section on EPC ratings for Victorian terraces would have saved me a very cold winter if I'd read it first.", authorName: "Klaus M.", guideId: rentingGuide.id },
+    { rating: 4, body: "The punting technique description is accurate. I fell in twice but that's my fault, not the guide's. The Grantchester trip was the best afternoon I've had in Cambridge.", authorName: "Alex R.", guideId: puntingGuide.id },
+    { rating: 5, body: "The Orchard Tea Garden in May is exactly as described — apple trees, deckchairs, and the most civilised afternoon imaginable. This walk should be in every Cambridge guide.", authorName: "Emma B.", guideId: grantchesterGuide.id },
+    { rating: 4, body: "The secondhand books section is real and wonderful. Found a 1960s local history book I'd been looking for for months. Go on a weekday morning to find the best stuff before it goes.", authorName: "Robert D.", guideId: marketGuide.id },
+    { rating: 5, body: "Rutland Cycling has a good range — I rented a hybrid for a week and it was exactly what I needed to explore the city. Brilliant starting point for anyone new to cycling here.", authorName: "Yi L.", guideId: cyclingGuide.id },
+    { rating: 3, body: "Good overview but slightly outdated on prices — the falafel wrap was closer to £6 when I went. Still the best value option in the centre by a mile.", authorName: "Jack O.", guideId: cheapEatsGuide.id },
+    // Expert reviews
+    { rating: 5, body: "Priya's cycling guides are the most practical I've found. She clearly cycles this city every day and it shows — every tip is tested rather than theoretical.", authorName: "Chloe N.", expertId: priyaExpert.id },
+    { rating: 5, body: "Oliver's cheap eats guide is spot on. He's done the research — I trust his recommendations more than any app review because he's actually a student here.", authorName: "Fatima A.", expertId: oliverExpert.id },
+    { rating: 5, body: "Sophie knows Cambridge pubs better than anyone. Her Free Press guide is perfect — honest, affectionate, and accurate down to the whiskies.", authorName: "Ben H.", expertId: sophieExpert.id },
+    { rating: 5, body: "Martin's Backs guide is beautifully written and actually useful. The Clare Fellows' Garden tip is one I've now used three times. Exactly what this site should be.", authorName: "Catriona F.", expertId: martinExpert.id },
+    { rating: 5, body: "Elena's guides are written from genuine lived experience — the rental guide especially. She doesn't pretend everything is easy, which makes her advice actually trustworthy.", authorName: "Hugo S.", expertId: elenaExpert.id },
+    { rating: 4, body: "Really helpful on the neighbourhoods. The Mill Road section is exactly right — I moved there on Elena's recommendation and haven't regretted it.", authorName: "Miriam T.", expertId: elenaExpert.id },
+  ];
+
+  for (const seed of reviewSeeds) {
+    await db.review.upsert({
+      where: {
+        id: `seed-review-${seed.authorName.toLowerCase().replace(/[^a-z]/g, "-")}-${seed.guideId ?? seed.expertId ?? ""}`,
+      },
+      update: {},
+      create: {
+        id: `seed-review-${seed.authorName.toLowerCase().replace(/[^a-z]/g, "-")}-${seed.guideId ?? seed.expertId ?? ""}`,
+        rating: seed.rating,
+        body: seed.body,
+        authorName: seed.authorName,
+        guideId: seed.guideId ?? null,
+        expertId: seed.expertId ?? null,
+      },
+    });
+  }
+
   console.log(
-    "Seed complete: 8 locations, 14 categories, 12 experts, 25 guides"
+    "Seed complete: 8 locations, 14 categories, 12 experts, 35 guides, 20 reviews"
   );
 }
 
