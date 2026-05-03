@@ -85,6 +85,7 @@ model Expert {
   userId     String?   @unique
   user       User?     @relation(fields: [userId], references: [id])
   guides     Guide[]
+  reviews    Review[]
   createdAt  DateTime  @default(now())
 }
 
@@ -109,4 +110,17 @@ model Guide {
   location    Location?   @relation(fields: [locationId], references: [id])
   publishedAt DateTime?
   createdAt   DateTime    @default(now())
+  reviews     Review[]
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  rating     Int
+  body       String
+  authorName String
+  guideId    String?
+  guide      Guide?   @relation(fields: [guideId], references: [id])
+  expertId   String?
+  expert     Expert?  @relation(fields: [expertId], references: [id])
+  createdAt  DateTime @default(now())
 }
