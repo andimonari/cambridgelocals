@@ -1,0 +1,166 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { ROUTES } from "@/lib/routes"
+
+type Category = { id: string; name: string }
+type Location = { id: string; name: string }
+
+type Props = {
+  categories: Category[]
+  locations: Location[]
+}
+
+export default function NewGuideForm({ categories, locations }: Props) {
+  const router = useRouter()
+  const [title, setTitle] = useState("")
+  const [categoryId, setCategoryId] = useState(categories[0]?.id ?? "")
+  const [locationId, setLocationId] = useState("")
+  const [body, setBody] = useState("")
+  const [preview, setPreview] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState<"draft" | "submitted" | null>(null)
+
+  async function handleSubmit(status: "draft" | "submitted") {
+    setError(null)
+    if (!title.trim()) { setError("Title is required."); return }
+    if (!categoryId) { setError("Please select a category."); return }
+    if (!body.trim()) { setError("Guide body is required."); return }
+
+    setSubmitting(status)
+    try {
+      const res = await fetch("/api/guides", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim(),
+          categoryId,
+          locationId: locationId || undefined,
+          body: body.trim(),
+          status,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.error ?? "Something went wrong.")
+        return
+      }
+      router.push(ROUTES.dashboard)
+      router.refresh()
+    } catch {
+      setError("Network error. Please try again.")
+    } finally {
+      setSubmitting(null)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+          Title
+        </label>
+        <input
+          id="title"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="e.g. The Best Coffee Shops in Cambridge"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+            Category
+          </label>
+          <select
+            id="category"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            {categories.length === 0 && <option value="">No categories available</option>}
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
+            Location <span className="text-gray-400 font-normal">(optional)</span>
+          </label>
+          <select
+            id="location"
+            value={locationId}
+            onChange={(e) => setLocationId(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="">Any / Cambridge-wide</option>
+            {locations.map((l) => (
+              <option key={l.id} value={l.id}>{l.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <label htmlFor="body" className="block text-sm font-medium text-gray-700">
+            Content <span className="text-gray-400 font-normal">(Markdown)</span>
+          </label>
+          <button
+            type="button"
+            onClick={() => setPreview((p) => !p)}
+            className="text-xs text-indigo-600 hover:underline"
+          >
+            {preview ? "Edit" : "Preview"}
+          </button>
+        </div>
+
+        {preview ? (
+          <div className="min-h-48 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 prose prose-sm max-w-none whitespace-pre-wrap">
+            {body || <span className="text-gray-400 italic">Nothing to preview yet.</span>}
+          </div>
+        ) : (
+          <textarea
+            id="body"
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            rows={16}
+            placeholder="Write your guide in Markdown…"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+          />
+        )}
+      </div>
+
+      {error && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          {error}
+        </p>
+      )}
+
+      <div className="flex gap-3 pt-2">
+        <button
+          type="button"
+          onClick={() => handleSubmit("draft")}
+          disabled={submitting !== null}
+          className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+        >
+          {submitting === "draft" ? "Saving…" : "Save as draft"}
+        </button>
+        <button
+          type="button"
+          onClick={() => handleSubmit("submitted")}
+          disabled={submitting !== null}
+          className="px-4 py-2 rounded-lg bg-indigo-600 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+        >
+          {submitting === "submitted" ? "Submitting…" : "Submit for review"}
+        </button>
+      </div>
+    </div>
+  )
+}

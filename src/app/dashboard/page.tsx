@@ -3,9 +3,17 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { db } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
+import { GuideStatus } from "@/generated/prisma/client"
 
 export const metadata = {
   title: "Dashboard — Cambridge Experts",
+}
+
+const statusConfig: Record<GuideStatus, { label: string; className: string }> = {
+  draft: { label: "Draft", className: "bg-gray-100 text-gray-500" },
+  submitted: { label: "In review", className: "bg-yellow-100 text-yellow-700" },
+  published: { label: "Published", className: "bg-green-100 text-green-700" },
+  rejected: { label: "Rejected", className: "bg-red-100 text-red-600" },
 }
 
 export default async function DashboardPage() {
@@ -57,34 +65,72 @@ export default async function DashboardPage() {
               <p className="font-medium text-gray-900">{expert.name}</p>
               <p className="text-sm text-gray-500">{expert.role}</p>
             </div>
-            <Link
-              href={ROUTES.expert(expert.slug)}
-              className="text-sm text-indigo-600 hover:underline"
-            >
-              View profile →
-            </Link>
+            <div className="flex items-center gap-3">
+              {expert.role === "admin" && (
+                <Link
+                  href={ROUTES.adminGuides}
+                  className="text-sm text-orange-600 hover:underline"
+                >
+                  Admin review →
+                </Link>
+              )}
+              <Link
+                href={ROUTES.expert(expert.slug)}
+                className="text-sm text-indigo-600 hover:underline"
+              >
+                View profile →
+              </Link>
+            </div>
           </div>
         )}
 
         <section>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Your guides</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Your guides</h2>
+            <Link
+              href={ROUTES.newGuide}
+              className="text-sm px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-medium"
+            >
+              + New guide
+            </Link>
+          </div>
+
           {!expert || expert.guides.length === 0 ? (
-            <p className="text-gray-400 text-sm py-8 text-center border border-dashed border-gray-200 rounded-lg">
-              No guides yet. Guide submission coming soon.
-            </p>
+            <div className="py-12 text-center border border-dashed border-gray-200 rounded-lg">
+              <p className="text-gray-400 text-sm mb-3">No guides yet.</p>
+              <Link
+                href={ROUTES.newGuide}
+                className="text-sm text-indigo-600 hover:underline"
+              >
+                Write your first guide →
+              </Link>
+            </div>
           ) : (
             <ul className="divide-y divide-gray-100">
-              {expert.guides.map((guide) => (
-                <li key={guide.id} className="py-3 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-sm text-gray-900">{guide.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{guide.category.name}</p>
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${guide.publishedAt ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                    {guide.publishedAt ? "Published" : "Draft"}
-                  </span>
-                </li>
-              ))}
+              {expert.guides.map((guide) => {
+                const { label, className } = statusConfig[guide.status]
+                return (
+                  <li key={guide.id} className="py-3 flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm text-gray-900 truncate">{guide.title}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{guide.category.name}</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {guide.status === "published" && (
+                        <Link
+                          href={ROUTES.guide(guide.slug)}
+                          className="text-xs text-indigo-600 hover:underline"
+                        >
+                          View
+                        </Link>
+                      )}
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${className}`}>
+                        {label}
+                      </span>
+                    </div>
+                  </li>
+                )
+              })}
             </ul>
           )}
         </section>

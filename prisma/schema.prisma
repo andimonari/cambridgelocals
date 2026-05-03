@@ -69,6 +69,7 @@ model Location {
   name      String
   slug      String   @unique
   experts   Expert[]
+  guides    Guide[]
   createdAt DateTime @default(now())
 }
 
@@ -87,15 +88,25 @@ model Expert {
   createdAt  DateTime  @default(now())
 }
 
+enum GuideStatus {
+  draft
+  submitted
+  published
+  rejected
+}
+
 model Guide {
-  id          String    @id @default(cuid())
+  id          String      @id @default(cuid())
   title       String
-  slug        String    @unique
+  slug        String      @unique
   body        String
+  status      GuideStatus @default(draft)
   authorId    String
-  author      Expert    @relation(fields: [authorId], references: [id])
+  author      Expert      @relation(fields: [authorId], references: [id])
   categoryId  String
-  category    Category  @relation(fields: [categoryId], references: [id])
+  category    Category    @relation(fields: [categoryId], references: [id])
+  locationId  String?
+  location    Location?   @relation(fields: [locationId], references: [id])
   publishedAt DateTime?
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime    @default(now())
 }
