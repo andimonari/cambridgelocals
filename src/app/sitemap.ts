@@ -3,7 +3,7 @@ import { db } from "@/lib/db"
 
 export const dynamic = "force-dynamic"
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgeexperts.com"
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgelocals.com"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [guides, experts] = await Promise.all([

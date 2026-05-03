@@ -8,7 +8,7 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgeexperts.com"
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgelocals.com"
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
