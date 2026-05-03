@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  guides    Guide[]
+  createdAt DateTime @default(now())
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  experts   Expert[]
+  createdAt DateTime @default(now())
+}
+
+model Expert {
+  id         String   @id @default(cuid())
+  name       String
+  slug       String   @unique
+  bio        String?
+  role       String
+  avatar     String?
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id])
+  guides     Guide[]
+  createdAt  DateTime @default(now())
+}
+
+model Guide {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  body        String
+  authorId    String
+  author      Expert    @relation(fields: [authorId], references: [id])
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id])
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+}
