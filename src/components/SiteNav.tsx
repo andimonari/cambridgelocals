@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { auth, signOut } from "@/lib/auth"
 import { ROUTES } from "@/lib/routes"
@@ -8,7 +9,8 @@ export async function SiteNav() {
   return (
     <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-100">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-        <Link href={ROUTES.home} className="font-semibold text-gray-900 tracking-tight">
+        <Link href={ROUTES.home} className="flex items-center gap-2 font-semibold text-gray-900 tracking-tight">
+          <Image src="/images/logo.png" alt="Cambridge Locals logo" width={32} height={32} className="rounded" />
           Cambridge Locals
         </Link>
         <div className="flex items-center gap-4">
