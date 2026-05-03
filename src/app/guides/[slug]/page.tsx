@@ -73,7 +73,7 @@ export default async function GuideDetailPage({ params }: Props) {
     url: `${baseUrl}/guides/${guide.slug}`,
     publisher: {
       "@type": "Organization",
-      name: "Cambridge Experts",
+      name: "Cambridge Locals",
       url: baseUrl,
     },
   }

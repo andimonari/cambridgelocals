@@ -5,7 +5,7 @@ import { ROUTES } from "@/lib/routes"
 import NewGuideForm from "./NewGuideForm"
 
 export const metadata = {
-  title: "New Guide — Cambridge Experts",
+  title: "New Guide — Cambridge Locals",
 }
 
 export default async function NewGuidePage() {

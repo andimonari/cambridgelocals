@@ -23,7 +23,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Resend({
       apiKey: process.env.AUTH_RESEND_KEY,
-      from: process.env.AUTH_EMAIL_FROM ?? "Cambridge Experts <noreply@cambridgeexperts.com>",
+      from: process.env.AUTH_EMAIL_FROM ?? "Cambridge Locals <noreply@cambridgelocals.com>",
     }),
     // Credentials provider for local development — no email sending required
     Credentials({

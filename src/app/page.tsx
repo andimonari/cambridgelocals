@@ -218,7 +218,7 @@ export default async function HomePage() {
       {/* Footer */}
       <footer className="border-t border-gray-100 px-4 sm:px-6 py-10">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-          <span className="font-medium text-gray-700">Cambridge Experts</span>
+          <span className="font-medium text-gray-700">Cambridge Locals</span>
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
             <a href="#" className="hover:text-gray-900 transition-colors">About</a>
             <Link href={ROUTES.guides} className="hover:text-gray-900 transition-colors">Guides</Link>
@@ -226,7 +226,7 @@ export default async function HomePage() {
             <a href="#" className="hover:text-gray-900 transition-colors">Contact</a>
             <a href="#" className="hover:text-gray-900 transition-colors">Privacy</a>
           </nav>
-          <span className="text-xs text-gray-400">© 2026 Cambridge Experts</span>
+          <span className="text-xs text-gray-400">© 2026 Cambridge Locals</span>
         </div>
       </footer>
     </div>

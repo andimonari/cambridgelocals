@@ -5,7 +5,7 @@ import { ROUTES } from "@/lib/routes"
 import { SiteNav } from "@/components/SiteNav"
 
 export const metadata: Metadata = {
-  title: "Guides — Cambridge Experts",
+  title: "Guides — Cambridge Locals",
   description: "Browse guides about Cambridge from local experts.",
 }
 

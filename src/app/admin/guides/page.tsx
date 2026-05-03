@@ -6,7 +6,7 @@ import { ROUTES } from "@/lib/routes"
 import AdminGuideActions from "./AdminGuideActions"
 
 export const metadata = {
-  title: "Admin — Guide Review — Cambridge Experts",
+  title: "Admin — Guide Review — Cambridge Locals",
 }
 
 export default async function AdminGuidesPage() {

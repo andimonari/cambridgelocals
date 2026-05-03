@@ -77,7 +77,7 @@ export default async function ExpertProfilePage({ params }: Props) {
       <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link href={ROUTES.home} className="font-semibold text-gray-900 tracking-tight">
-            Cambridge Experts
+            Cambridge Locals
           </Link>
           <nav className="hidden sm:flex gap-6 text-sm text-gray-500">
             <a href={`${ROUTES.home}#guides`} className="hover:text-gray-900 transition-colors">Guides</a>

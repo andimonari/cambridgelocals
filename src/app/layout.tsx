@@ -12,25 +12,25 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgeexperts.com"
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgelocals.com"
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "Cambridge Experts — Local insights for students, tourists & professionals",
-    template: "%s — Cambridge Experts",
+    default: "Cambridge Locals — Local insights for students, tourists & professionals",
+    template: "%s — Cambridge Locals",
   },
   description: "Discover Cambridge through the eyes of local experts. Tips, guides, and insider knowledge for students, tourists, and professionals.",
   openGraph: {
     type: "website",
-    siteName: "Cambridge Experts",
-    title: "Cambridge Experts — Local insights for students, tourists & professionals",
+    siteName: "Cambridge Locals",
+    title: "Cambridge Locals — Local insights for students, tourists & professionals",
     description: "Discover Cambridge through the eyes of local experts. Tips, guides, and insider knowledge for students, tourists, and professionals.",
     url: baseUrl,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Cambridge Experts — Local insights for students, tourists & professionals",
+    title: "Cambridge Locals — Local insights for students, tourists & professionals",
     description: "Discover Cambridge through the eyes of local experts. Tips, guides, and insider knowledge for students, tourists, and professionals.",
   },
 };

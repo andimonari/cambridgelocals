@@ -3,7 +3,7 @@ import { ROUTES } from "@/lib/routes"
 import Link from "next/link"
 
 export const metadata = {
-  title: "Sign in — Cambridge Experts",
+  title: "Sign in — Cambridge Locals",
 }
 
 interface Props {
@@ -25,7 +25,7 @@ export default async function SignInPage({ searchParams }: Props) {
     <div className="min-h-screen bg-white flex flex-col">
       <header className="border-b border-gray-100 px-4 sm:px-6 h-14 flex items-center">
         <Link href={ROUTES.home} className="font-semibold text-gray-900 tracking-tight">
-          Cambridge Experts
+          Cambridge Locals
         </Link>
       </header>
 

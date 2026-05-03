@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og"
 
 export const runtime = "edge"
-export const alt = "Cambridge Experts — Local insights for students, tourists & professionals"
+export const alt = "Cambridge Locals — Local insights for students, tourists & professionals"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
@@ -42,7 +42,7 @@ export default function Image() {
             maxWidth: 800,
           }}
         >
-          Cambridge Experts
+          Cambridge Locals
         </div>
         <div
           style={{
