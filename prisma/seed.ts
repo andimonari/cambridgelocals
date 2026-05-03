@@ -112,6 +112,40 @@ async function main() {
     create: { name: "Sports & Fitness", slug: "sports-fitness" },
   });
 
+  // ── Categories (relocation) ─────────────────────────────────────
+  const schoolsEducation = await db.category.upsert({
+    where: { slug: "schools-education" },
+    update: {},
+    create: { name: "Schools & Education", slug: "schools-education" },
+  });
+
+  const estateAgentsProperty = await db.category.upsert({
+    where: { slug: "estate-agents-property" },
+    update: {},
+    create: {
+      name: "Estate Agents & Property",
+      slug: "estate-agents-property",
+    },
+  });
+
+  const cycling = await db.category.upsert({
+    where: { slug: "cycling" },
+    update: {},
+    create: { name: "Cycling", slug: "cycling" },
+  });
+
+  const healthcare = await db.category.upsert({
+    where: { slug: "healthcare" },
+    update: {},
+    create: { name: "Healthcare", slug: "healthcare" },
+  });
+
+  const settlingIn = await db.category.upsert({
+    where: { slug: "settling-in" },
+    update: {},
+    create: { name: "Settling In", slug: "settling-in" },
+  });
+
   // ── Experts (existing — rename to first name + last initial) ───
   const amelia = await db.expert.upsert({
     where: { slug: "amelia-hayes" },
@@ -231,6 +265,30 @@ async function main() {
       bio: "Senior nurse at Addenbrooke's Hospital. Has lived in Trumpington for eight years and knows the practical realities of Cambridge life that students and newcomers often discover too late.",
       role: "NHS Nurse",
       locationId: trumpington.id,
+    },
+  });
+
+  const kate = await db.expert.upsert({
+    where: { slug: "kate-m" },
+    update: {},
+    create: {
+      name: "Kate M.",
+      slug: "kate-m",
+      bio: "Primary school governor and parent of two children who have gone through the full Cambridge state school system. Moved from Leeds eight years ago and has navigated catchment areas, secondary applications, and sixth form admissions from the inside.",
+      role: "School Governor",
+      locationId: chesterton.id,
+    },
+  });
+
+  const tom = await db.expert.upsert({
+    where: { slug: "tom-r" },
+    update: {},
+    create: {
+      name: "Tom R.",
+      slug: "tom-r",
+      bio: "Senior negotiator at a Cambridge residential estate agency for twelve years, specialising in lettings and sales across the CB1–CB5 postcodes. Has helped hundreds of newcomers find homes and knows which agencies are worth approaching and which to avoid.",
+      role: "Estate Agent",
+      locationId: cityCenter.id,
     },
   });
 
@@ -783,8 +841,336 @@ Energy Performance Certificates matter in older Cambridge terraces, which can be
     },
   });
 
+  // ── Guides (relocation) ────────────────────────────────────────
+
+  await db.guide.upsert({
+    where: { slug: "best-areas-to-live-cambridge" },
+    update: {},
+    create: {
+      title: "Best Areas to Live in Cambridge: A Neighbourhood Guide",
+      slug: "best-areas-to-live-cambridge",
+      status: "published",
+      body: `Cambridge is a compact city, and most areas are within reasonable cycling or walking distance of the centre. But where you live shapes your experience considerably — neighbourhood character, transport access, school catchments, and rental prices vary significantly across a city that is only a few miles wide.
+
+## For Families
+
+**Trumpington** is the area most recommended by Cambridge parents with young children. The neighbourhood has expanded significantly with new-build development over the past decade, and the schools — both primaries and Trumpington Community College — are well-regarded. The Addenbrooke's campus is walkable, Trumpington Meadows country park provides open space, and the Waitrose on Trumpington Road makes daily life easy. Rents and prices are higher than Cherry Hinton but lower than Newnham.
+
+**Cherry Hinton** offers more affordable housing while retaining good access to the centre. The community orchards, Cherry Hinton Hall park, and the annual Folk Festival are genuine assets. Schools in the area are solid, and the CB1 postcode means short bus or cycle times to town.
+
+**Chesterton** retains a strong neighbourhood identity. Milton Road has independent shops and a GP surgery, Chesterton Academy has improved significantly, and property prices are lower than equivalent streets south of the river.
+
+## For Professionals
+
+**Mill Road and CB1** is where most newcomers without children end up, and with good reason. The independent shops, cafés, and restaurants make day-to-day life genuinely pleasant. The area is flat and well-connected by cycling. Rents are moderate — cheaper than Newnham, more characterful than Arbury.
+
+**Newnham** is a quieter residential area close to the university, with beautiful Victorian and Edwardian terraces and good walking routes to the Backs and Grantchester. It is expensive for what you get in terms of space, but the quiet streets and proximity to open countryside are hard to put a price on.
+
+**Castle Hill and Chesterton Road** offer the combination of central access and residential character that is hard to find close to the city centre proper. Huntingdon Road has dedicated cycling infrastructure and a reliable bus route.
+
+## For Students and Early Career Researchers
+
+**Romsey and Coleridge** are the postcodes where most Cambridge postgraduates and early-career researchers end up, and they are excellent choices. Walkable to the centre, well-connected by bike to the science parks and hospitals, and notably cheaper than equivalent central addresses.
+
+**Arbury** in the north is the most affordable area with direct bus access and is popular with those on tighter budgets. It is slightly further from the main university departments but the cost difference can be significant.
+
+## What to Avoid
+
+Very central Cambridge addresses — CB2 postcodes closest to the market and colleges — are expensive and noisy during tourist season. Unless you specifically need to be within five minutes of the centre, the areas above offer much better value and quality of life.`,
+      authorId: elena.id,
+      categoryId: settlingIn.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-05-03"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "cambridge-school-guide-new-parents" },
+    update: {},
+    create: {
+      title: "Understanding Cambridge Schools: A Guide for New Parents",
+      slug: "cambridge-school-guide-new-parents",
+      status: "published",
+      body: `If you are moving to Cambridge with children, understanding how the school system works — and acting early — will save you considerable stress. Cambridge's state schools are genuinely good by national standards, but demand for the best of them outstrips supply, and catchment areas are smaller and more sharply enforced than parents used to other cities typically expect.
+
+## Primary Schools
+
+Cambridge operates a two-tier system: primary schools (ages 4–11) feed into secondary schools (11–18). There are no middle schools.
+
+The city has a mix of community primaries, which use address-based catchment, and faith schools (C of E and Catholic), which apply additional criteria. Outstanding-rated primaries include Queen Edith's Community Primary (CB1), Coleridge Community Primary (CB1), Newnham Croft Primary (CB3), and St Alban's Primary (CB4).
+
+Catchment areas for the most sought-after schools have become smaller as the city's population has grown. If you are choosing where to live with primary-age children, check catchment areas carefully using the Cambridgeshire County Council school admissions page before signing a lease or completing a purchase.
+
+## Secondary Schools
+
+The main state secondary schools are Chesterton Academy (CB4), Parkside Community College (CB1), Netherhall School (CB1), and Trumpington Community College (CB2). Hills Road Sixth Form College and Long Road Sixth Form College take students at 16 from across the city — both are consistently rated among the best sixth form colleges in the country.
+
+Hills Road is heavily oversubscribed, with students travelling from Ely and Newmarket. Entry is based on GCSE attainment; applications are made in Year 11.
+
+## Private Options
+
+The Perse School (prep and senior) is Cambridge's main all-through independent school. The Leys is a co-educational independent day and boarding school. St Mary's School is independent and girls-only at secondary level. King's College School at King's College has wider junior admissions beyond its choristers.
+
+## How to Apply
+
+Applications for Reception (age 4) are made in January before the September intake. Secondary applications are made in October of Year 6. Both are managed through **Cambridgeshire County Council's** online admissions portal — not Cambridge City Council, a distinction that confuses many newcomers.
+
+Late applications go into a second round and significantly reduce your chances of getting a catchment school place. Mark the deadlines in your diary the day you arrive.
+
+## Practical Advice
+
+Talk to parents in your prospective neighbourhood before relying solely on Ofsted reports. A good Ofsted rating from a few years ago may not reflect current conditions, and vice versa. The best intelligence on what a school is actually like in a particular year comes from parents who have children there now.`,
+      authorId: kate.id,
+      categoryId: schoolsEducation.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-05-03"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "cambridge-estate-agents-guide" },
+    update: {},
+    create: {
+      title: "Estate Agents in Cambridge: Who to Use and What to Expect",
+      slug: "cambridge-estate-agents-guide",
+      status: "published",
+      body: `Cambridge's property market is active, tight, and expensive relative to most of England. Finding the right estate agent — whether you are renting or buying — makes a material difference to the experience. Here is a frank summary of the main players and what to expect.
+
+## For Rentals
+
+The largest rental portfolio in Cambridge is spread across a handful of agencies. **Redmayne Arnold & Harris (RA&H)** has been a major Cambridge letting agent for decades and handles a large volume of properties across the city. Reliable but not especially proactive — expect to chase for viewings.
+
+**Pocock & Shaw** covers central Cambridge postcodes and has a good reputation for better-quality properties in CB1 and CB2. Response times are generally good.
+
+**Cambridge Accommodation Matching Service** (available to University staff and students) lists private landlords who have agreed to the University's standards. Worth consulting before going to the open market.
+
+For Mill Road and the CB1 area specifically, **Let Property** has a strong local focus with staff who know the streets.
+
+## For Buying
+
+**Bidwells** is Cambridge's most established residential agency for sales, particularly for village and detached properties. Their city-centre coverage is good, and they also handle commercial property.
+
+**Cheffins** is a genuine Cambridge institution operating since 1863, strong in residential, commercial, and auctions. Their residential auctions at the Doubletree Hilton are worth attending even if you are not buying — educational about true market prices.
+
+**Savills** and **Carter Jonas** handle the upper end of the Cambridge residential market. Both have excellent local knowledge above £700,000.
+
+## What to Know Before You Start
+
+In Cambridge's rental market, good properties go within 24–48 hours. Have your documents ready before you need them: proof of income, three months of bank statements, and references from a previous landlord or employer. International arrivals without a UK credit history may be asked for a larger deposit or a UK guarantor — clarify this upfront before spending time on viewings.
+
+For buying, a typical terraced house in CB1 is listed at £400,000–550,000; semi-detached in Chesterton or Cherry Hinton at £450,000–600,000. The spring market (March–June) is the most competitive.
+
+Instruct your solicitor before your offer is accepted. The same small pool of Cambridge conveyancers handles most local transactions, and good ones book up fast in a rising market.`,
+      authorId: tom.id,
+      categoryId: estateAgentsProperty.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-05-03"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "registering-with-gp-cambridge" },
+    update: {},
+    create: {
+      title: "Registering with a GP in Cambridge: What You Need to Know",
+      slug: "registering-with-gp-cambridge",
+      status: "published",
+      body: `One of the most important things to do when you arrive in Cambridge is register with a GP surgery. Do not wait until you are unwell — the registration process takes time, and surgeries in Cambridge are under significant pressure. Registering early gives you access to NHS care, prescriptions, and referrals when you actually need them.
+
+## How to Register
+
+All NHS GP surgeries accept patients based on their home address falling within the practice's registration area. Most Cambridge surgeries allow online registration via their website or through the NHS App, which is the fastest route. You will typically need proof of address (utility bill, bank statement, or tenancy agreement) and photographic ID.
+
+If a surgery near you is not accepting new patients — which does happen, particularly in heavily populated CB1 postcodes — you have the right to register at any practice within a reasonable distance. Call the surgery directly and explain your situation before assuming it is closed to you.
+
+## Main Surgeries by Area
+
+**City Centre and CB1**: The Brookside Practice on Trumpington Street is well-regarded and covers much of the central CB2 area. Mill Road Surgery is popular with CB1 residents and has good GP continuity.
+
+**CB4 (Chesterton and north)**: Chesterton Medical Centre on Union Lane is the main practice for north Cambridge, with a larger-than-average team and reasonable appointment wait times.
+
+**CB2 (Trumpington and south)**: The Trumpington Street Practice handles much of the southern CB2 area. The Firs Medical Centre is a good option for those closer to Hills Road.
+
+## If You Cannot Register Immediately
+
+Use **NHS 111** (call 111 or visit 111.nhs.uk) for non-emergency medical advice and out-of-hours guidance. The Walk-in Centre at Addenbrooke's Hospital handles minor injuries and ailments without a GP referral — queues can be long but the care is good.
+
+Boots Pharmacy on Sidney Street has an NHS-funded minor ailments service that treats a range of common conditions without a GP appointment.
+
+## What Happens After Registration
+
+Most surgeries offer online booking via the NHS App or their patient portal. Routine appointments book up quickly — request them several days in advance. For urgent same-day appointments, call from 8am when slots are released. For continuity on long-term conditions, bring a summary letter from your previous GP when you first register — it speeds up records transfer and ensures repeat prescriptions are not interrupted.`,
+      authorId: rachel.id,
+      categoryId: healthcare.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-05-03"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "cycle-shops-cambridge-guide" },
+    update: {},
+    create: {
+      title: "Cycle Shops in Cambridge: Where to Buy, Repair, and Get Set Up",
+      slug: "cycle-shops-cambridge-guide",
+      status: "published",
+      body: `If you are arriving in Cambridge without a bicycle, getting one should be near the top of your list. The city's cycling infrastructure is genuinely good, and a working bike changes your relationship with the place. Here is where to go, depending on what you need.
+
+## Ben Hayward Cycles
+
+The oldest bicycle shop in Cambridge — established in 1890 — Ben Hayward Cycles is on City Road, a ten-minute walk from the Grand Arcade. This is where Cambridge cyclists take their bikes for serious repairs, and where buying secondhand is as viable as buying new. The staff have the kind of deep product knowledge that only comes from decades of handling every kind of bike problem.
+
+Ben Hayward is the best first stop if you want a practical commuting or hybrid bike, or if you need mechanical work done properly. Prices are fair and waiting times for repairs are usually shorter than elsewhere in the city.
+
+## Cambridge Bicycle
+
+On Newmarket Road near the Mill Road junction, Cambridge Bicycle is a well-stocked independent covering road cycling, commuting, and accessories. They carry a good range of Brompton folding bikes — worth considering if you are combining cycling with train travel to London.
+
+## Cycle King
+
+The main chain option, with a shop near the Grand Arcade and another in the Grafton Centre. Good for a wide range at accessible prices. For a basic commuter bike under £400, this is a practical starting point.
+
+## Cyclepoint at Cambridge Station
+
+A purpose-built facility next to Cambridge Railway Station offering secure cycle parking (monthly and daily rates), a full servicing workshop, bike hire, and a small accessories shop. If you are combining cycling with a rail commute, a Cyclepoint monthly parking pass is excellent value.
+
+## What to Budget
+
+A reliable commuting bike — mudguards, rear rack, lights — costs £350–600 new. Secondhand bikes via Gumtree or University classified boards can be good value, but have Ben Hayward check any secondhand bike before you commit.
+
+Two locks are non-negotiable. Budget £60–90 for a good D-lock (Kryptonite, Abus, or Hiplok) and a secondary cable. See the separate bike theft guide for security strategy.
+
+## The Cycling Community
+
+Cambridge Cycling Campaign (Camcycle) runs events, advocates for infrastructure improvements, and maintains the best map of recommended cycle routes through the city — including quieter back-street options that are not obvious to newcomers. Their website is a practical first resource.`,
+      authorId: priya.id,
+      categoryId: cycling.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-05-03"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "council-tax-utilities-cambridge" },
+    update: {},
+    create: {
+      title: "Council Tax and Utilities in Cambridge: A New Resident's Guide",
+      slug: "council-tax-utilities-cambridge",
+      status: "published",
+      body: `Setting up council tax and utilities is one of those tasks nobody tells you about in advance, but getting it right from the start avoids a backlog of letters and potential penalties. Here is what you need to do.
+
+## Council Tax
+
+Council tax in Cambridge is administered by **Cambridge City Council** for properties within the city boundary (primarily CB1–CB4). Properties in parts of CB2 and beyond may fall under **South Cambridgeshire District Council**, which has a different rate. Check your exact postcode on each council's website if you are unsure.
+
+Cambridge City Council Band D for 2025–26 is approximately £1,940 per year, payable in ten monthly instalments. You can request twelve monthly payments instead. Set up a direct debit via the council's online portal.
+
+**Student exemption**: Full-time students registered at a UK university are exempt from council tax. If you are the sole adult in the property and a full-time student, the property is fully exempt. Collect your council tax exemption certificate from your university's student services office and send it to the council immediately upon moving in.
+
+## Water
+
+Cambridge is supplied by **Cambridge Water** for drinking water; sewerage is managed by **Anglian Water**. Both are area monopolies — register with Cambridge Water when you move in. Cambridge water is hard (chalk geology), which means limescale on appliances. A water filter jug is a practical and inexpensive solution.
+
+## Electricity and Gas
+
+Unlike water, you can choose your energy supplier. Find out the current default supplier from the agent or previous occupant and transfer the account to your name first, then switch via Uswitch or the Ofgem comparison tool if you want a better deal. Check whether the property has a smart meter — most newer Cambridge properties do; if not, submit monthly readings.
+
+## Waste and Recycling
+
+Cambridge City Council runs alternate fortnightly collections: one week blue (recycling) and green bins, the next grey (general waste) and food waste caddy. Collection days vary by street — check your schedule via the council website when you arrive. Garden waste requires a separate subscription to the brown bin service (around £65/year).
+
+## Broadband
+
+Full-fibre broadband is available on most Cambridge streets. Providers include BT/EE via Openreach, Virgin Media, and Community Fibre. Standard superfast packages run £25–35 per month. Many Cambridge rentals include broadband in all-bills-included arrangements — clarify this with your landlord before setting up a separate contract.`,
+      authorId: elena.id,
+      categoryId: settlingIn.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-05-03"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "community-groups-meeting-people-cambridge" },
+    update: {},
+    create: {
+      title: "Community Groups and Meeting People in Cambridge",
+      slug: "community-groups-meeting-people-cambridge",
+      status: "published",
+      body: `Cambridge can feel surprisingly isolating when you first arrive. The city is full of people who are temporarily here — students, postdocs, visiting researchers — and the transience that makes it vibrant also means social networks take more deliberate effort to build than in cities where people stay for decades. The good news is that well-established communities exist for almost every interest, and the city is small enough that connections happen quickly once you start looking.
+
+## For University Newcomers
+
+The **Newcomers and Visiting Scholars (NVS) Group** is one of Cambridge's most active newcomer organisations, primarily serving partners and families of people who have arrived for academic work. It runs coffee mornings, guided tours, language classes, and social events throughout term. Even if you are not technically a "visiting scholar," the group is open to anyone connected to the university community.
+
+The **University of Cambridge Graduate Union** (GU) runs events and support for graduate students specifically, including a comprehensive Freshers' Fair at the start of Michaelmas term.
+
+## Parkrun
+
+Saturday morning Parkrun at Coldham's Common (5km, free, 9am) is one of the most effective ways to meet people in Cambridge who intend to stay. It draws NHS staff, tech workers, academic families, and longtime residents in a non-pretentious, no-membership context. Cambridge also has Parkruns at Milton Country Park and Gog Magog Hills for variation.
+
+## Interest and Activity Groups
+
+Cambridge has an active Meetup.com scene with groups for hiking, board games, language exchange, photography, and most other interests. The Cambridge Film Festival, Cambridge Literary Festival, and Cambridge Science Festival all attract good crowds and are worth attending for their social as well as cultural value.
+
+Cambridge Astronomical Society, University public lecture series (open to non-members), and the Cambridge Union (debates, open to public membership) are among the more distinctive local offerings.
+
+## Volunteering
+
+**Volunteer Cambridge** is the city's main volunteering hub, matching people to organisations across the city. Cambridge Cyrenians runs a night shelter and soup kitchen and is a well-regarded local charity. Community orchard, food bank, hospice support, and museum volunteering networks are all active.
+
+## Neighbourhood Life
+
+Mill Road Winter Fair in early December is the best single event for getting a feel for the Mill Road community. Cherry Hinton Village Festival, Midsummer Fair, and college Open Days throughout the year provide reasons to engage with different parts of the city.
+
+WhatsApp neighbourhood groups and the Cambridge Community Forum on Facebook are where practical Cambridge conversation happens — useful for finding a plumber, asking about local services, or understanding what that helicopter was doing at 2am.`,
+      authorId: elena.id,
+      categoryId: settlingIn.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-05-03"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "cambridge-car-free-guide" },
+    update: {},
+    create: {
+      title: "Living Car-Free in Cambridge: A Practical Guide",
+      slug: "cambridge-car-free-guide",
+      status: "published",
+      body: `Cambridge is one of the most practical cities in England to live without a car. The city is small, flat, cycle-friendly, reasonably well-served by public transport, and connected by rail to the wider region. Many residents manage it without inconvenience. Here is how to make it work.
+
+## Cycling First
+
+Cambridge has over 80 kilometres of cycle paths and routes, and the flat terrain makes cycling practical for most journeys year-round. A commuting bike with mudguards and lights covers 90% of Cambridge journeys. The station to city centre takes about eight minutes; Addenbrooke's to the city centre takes twelve. See the dedicated cycling guides for details on bike shops and security.
+
+## The Bus Network
+
+Stagecoach operates the Citi bus network across the main residential corridors. Citi 1 (Chesterton to Addenbrooke's), Citi 2 (Arbury to Cherry Hinton), and Citi 7 (Mill Road) are the most useful routes for daily life. Frequency is good during the day — roughly every 10–12 minutes on core routes — but drops sharply after 7pm and is sparse after 9pm.
+
+The **Busway** (Citi A and D routes) provides fast, frequent service to St Ives, Huntingdon, and Ely via dedicated guided bus lanes. The Park & Ride sites at Trumpington, Babraham Road, and Milton are the correct approach for anyone driving in from outside.
+
+## Rail Connections
+
+Cambridge Station and Cambridge North (Chesterton) provide excellent regional access. London King's Cross is 50 minutes on the fast train; Stansted Airport is 30 minutes; Ely is 15 minutes. A Railcard significantly reduces the cost of regular rail travel — the Network Railcard covers all of East Anglia and pays for itself quickly.
+
+## Taxis and Car Share
+
+**Panther Taxis** is Cambridge's established taxi company and notably more reliable than Uber for city pickups, particularly at peak times. Booking 15–30 minutes ahead is advisable rather than attempting to hail.
+
+**ZipCar** has a fleet of vehicles at fixed locations around Cambridge. A membership (annual fee plus hourly rates) is the practical solution for the occasional IKEA run or country visit that genuinely requires a car.
+
+## Shopping Without a Car
+
+The central city is walkable for most shopping. Tesco Express, Co-op, and various independent grocery shops are scattered throughout the residential postcodes; you are rarely more than ten minutes from a food shop by bike. For large grocery shops, a cargo bike trailer or a good backpack is practical. For large deliveries — furniture, appliances — order direct; almost everything delivers to Cambridge without difficulty given the city's proximity to major logistics hubs.`,
+      authorId: rachel.id,
+      categoryId: gettingAround.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-05-03"),
+    },
+  });
+
   console.log(
-    "Seed complete: 8 locations, 9 categories, 10 experts, 17 guides"
+    "Seed complete: 8 locations, 14 categories, 12 experts, 25 guides"
   );
 }
 
