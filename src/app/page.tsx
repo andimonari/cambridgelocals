@@ -46,22 +46,12 @@ const experts = [
   },
 ];
 
+import { SiteNav } from "@/components/SiteNav"
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      {/* Nav */}
-      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <span className="font-semibold text-gray-900 tracking-tight">
-            Cambridge Experts
-          </span>
-          <nav className="hidden sm:flex gap-6 text-sm text-gray-500">
-            <a href="#guides" className="hover:text-gray-900 transition-colors">Guides</a>
-            <a href="#experts" className="hover:text-gray-900 transition-colors">Experts</a>
-            <a href="#share" className="hover:text-gray-900 transition-colors">Share knowledge</a>
-          </nav>
-        </div>
-      </header>
+      <SiteNav />
 
       <main>
         {/* Hero */}
