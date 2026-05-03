@@ -32,7 +32,7 @@ export default async function DashboardPage() {
   })
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-amber-50/30 text-gray-900">
       <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link href={ROUTES.home} className="font-semibold text-gray-900 tracking-tight">
@@ -54,14 +54,14 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
-        <div className="mb-8">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+        <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Your dashboard</h1>
           <p className="text-gray-500 mt-1 text-sm">{session.user.email}</p>
         </div>
 
         {expert && (
-          <div className="mb-8 p-4 rounded-lg border border-gray-200 flex items-center justify-between">
+          <div className="mb-6 p-4 rounded-lg border border-gray-200 flex items-center justify-between">
             <div>
               <p className="font-medium text-gray-900">{formatDisplayName(expert.name)}</p>
               <p className="text-sm text-gray-500">{expert.role}</p>

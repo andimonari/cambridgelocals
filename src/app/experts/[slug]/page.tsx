@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import type { Metadata } from "next"
 import { formatDisplayName } from "@/lib/display-name"
+import { SiteNav } from "@/components/SiteNav"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -66,27 +67,16 @@ export default async function ExpertProfilePage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-amber-50/30 text-gray-900">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* Nav */}
-      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link href={ROUTES.home} className="font-semibold text-gray-900 tracking-tight">
-            Cambridge Locals
-          </Link>
-          <nav className="hidden sm:flex gap-6 text-sm text-gray-500">
-            <a href={`${ROUTES.home}#guides`} className="hover:text-gray-900 transition-colors">Guides</a>
-            <a href={`${ROUTES.home}#experts`} className="hover:text-gray-900 transition-colors">Experts</a>
-          </nav>
-        </div>
-      </header>
+      <SiteNav />
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         {/* Profile header */}
-        <div className="flex items-start gap-5 mb-10">
+        <div className="flex items-start gap-5 mb-6">
           <div className="w-16 h-16 rounded-full bg-indigo-100 text-indigo-700 font-semibold text-xl flex items-center justify-center shrink-0">
             {initials}
           </div>
@@ -100,7 +90,7 @@ export default async function ExpertProfilePage({ params }: Props) {
         </div>
 
         {expert.bio && (
-          <p className="text-gray-600 leading-relaxed mb-10 border-l-2 border-indigo-100 pl-4">
+          <p className="text-gray-600 leading-relaxed mb-6 border-l-2 border-indigo-100 pl-4">
             {expert.bio}
           </p>
         )}

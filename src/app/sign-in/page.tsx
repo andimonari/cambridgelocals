@@ -22,7 +22,7 @@ export default async function SignInPage({ searchParams }: Props) {
   const errorMessage = error ? (errorMessages[error] ?? errorMessages.Default) : null
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-amber-50/30 flex flex-col">
       <header className="border-b border-gray-100 px-4 sm:px-6 h-14 flex items-center">
         <Link href={ROUTES.home} className="font-semibold text-gray-900 tracking-tight">
           Cambridge Locals

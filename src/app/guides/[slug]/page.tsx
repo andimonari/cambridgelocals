@@ -76,16 +76,16 @@ export default async function GuideDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-amber-50/30 text-gray-900">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <SiteNav />
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="text-sm text-gray-400 mb-8 flex items-center gap-1 flex-wrap">
+        <nav aria-label="Breadcrumb" className="text-sm text-gray-400 mb-4 flex items-center gap-1 flex-wrap">
           <Link href={ROUTES.home} className="hover:text-gray-600 transition-colors">Home</Link>
           <span aria-hidden>›</span>
           <Link href={ROUTES.guides} className="hover:text-gray-600 transition-colors">Guides</Link>
@@ -94,7 +94,7 @@ export default async function GuideDetailPage({ params }: Props) {
         </nav>
 
         {/* Feature image */}
-        <div className="relative w-full h-48 sm:h-64 rounded-xl overflow-hidden mb-8">
+        <div className="relative w-full h-40 sm:h-52 rounded-xl overflow-hidden mb-6">
           <Image
             src="/images/cambridge-architecture.jpg"
             alt="Historic Cambridge architecture"
@@ -123,12 +123,12 @@ export default async function GuideDetailPage({ params }: Props) {
         </div>
 
         {/* Title */}
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 leading-tight">
           {guide.title}
         </h1>
 
         {/* Author + date */}
-        <div className="flex items-center gap-3 mb-10 pb-8 border-b border-gray-100">
+        <div className="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100">
           <div
             aria-hidden
             className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-semibold flex items-center justify-center shrink-0"

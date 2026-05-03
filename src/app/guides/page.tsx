@@ -46,19 +46,19 @@ export default async function GuidesPage({ searchParams }: Props) {
   ])
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-amber-50/30 text-gray-900">
       <SiteNav />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="text-sm text-gray-400 mb-8 flex items-center gap-1">
+        <nav aria-label="Breadcrumb" className="text-sm text-gray-400 mb-4 flex items-center gap-1">
           <Link href={ROUTES.home} className="hover:text-gray-600 transition-colors">Home</Link>
           <span aria-hidden>›</span>
           <span className="text-gray-600">Guides</span>
         </nav>
 
         {/* Page header with Cambridge image */}
-        <div className="relative rounded-xl overflow-hidden h-44 sm:h-56 mb-10">
+        <div className="relative rounded-xl overflow-hidden h-36 sm:h-44 mb-6">
           <Image
             src="/images/cambridge-river-evening.jpg"
             alt="Peaceful summer evening by the River Cam in Cambridge"
@@ -105,7 +105,7 @@ export default async function GuidesPage({ searchParams }: Props) {
 
         {/* Location filter */}
         {locations.length > 0 && (
-          <div className="mb-10">
+          <div className="mb-6">
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Area</p>
             <div className="flex flex-wrap gap-2">
               <Link
