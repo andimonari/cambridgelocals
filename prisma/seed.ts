@@ -1764,11 +1764,11 @@ Cherry Hinton Hall is accessible from the Citi 1 bus (towards Addenbrooke's and 
   const marketGuide = await guideBySlug("cambridge-market-square-guide");
 
   // Reviews on experts
-  const priyaExpert = await expertBySlug("priya-sharma");
-  const oliverExpert = await expertBySlug("oliver-chen");
-  const sophieExpert = await expertBySlug("sophie-r");
-  const martinExpert = await expertBySlug("martin-r");
-  const elenaExpert = await expertBySlug("elena-k");
+  const andyExpert = await expertBySlug("andy-family-dad");
+  const teresaExpert = await expertBySlug("teresa-family-mom");
+  const alexExpert = await expertBySlug("alex-family-son-10");
+  const maxExpert = await expertBySlug("max-family-son-7");
+  const leoExpert = await expertBySlug("leo-family-son-4");
 
   const reviewSeeds = [
     // Guide reviews
@@ -1787,12 +1787,12 @@ Cherry Hinton Hall is accessible from the Citi 1 bus (towards Addenbrooke's and 
     { rating: 5, body: "Rutland Cycling has a good range — I rented a hybrid for a week and it was exactly what I needed to explore the city. Brilliant starting point for anyone new to cycling here.", authorName: "Yi L.", guideId: cyclingGuide.id },
     { rating: 3, body: "Good overview but slightly outdated on prices — the falafel wrap was closer to £6 when I went. Still the best value option in the centre by a mile.", authorName: "Jack O.", guideId: cheapEatsGuide.id },
     // Expert reviews
-    { rating: 5, body: "Priya's cycling guides are the most practical I've found. She clearly cycles this city every day and it shows — every tip is tested rather than theoretical.", authorName: "Chloe N.", expertId: priyaExpert.id },
-    { rating: 5, body: "Oliver's cheap eats guide is spot on. He's done the research — I trust his recommendations more than any app review because he's actually a student here.", authorName: "Fatima A.", expertId: oliverExpert.id },
-    { rating: 5, body: "Sophie knows Cambridge pubs better than anyone. Her Free Press guide is perfect — honest, affectionate, and accurate down to the whiskies.", authorName: "Ben H.", expertId: sophieExpert.id },
-    { rating: 5, body: "Martin's Backs guide is beautifully written and actually useful. The Clare Fellows' Garden tip is one I've now used three times. Exactly what this site should be.", authorName: "Catriona F.", expertId: martinExpert.id },
-    { rating: 5, body: "Elena's guides are written from genuine lived experience — the rental guide especially. She doesn't pretend everything is easy, which makes her advice actually trustworthy.", authorName: "Hugo S.", expertId: elenaExpert.id },
-    { rating: 4, body: "Really helpful on the neighbourhoods. The Mill Road section is exactly right — I moved there on Elena's recommendation and haven't regretted it.", authorName: "Miriam T.", expertId: elenaExpert.id },
+    { rating: 5, body: "Andy's IT and dad tips are very helpful. He knows all the practical stuff for families.", authorName: "Chloe N.", expertId: andyExpert.id },
+    { rating: 5, body: "Teresa's advice on GPs and schools was a lifesaver for our move.", authorName: "Fatima A.", expertId: teresaExpert.id },
+    { rating: 5, body: "Alex (10) knows the best stuff for kids. My son loved the museum tip.", authorName: "Ben H.", expertId: alexExpert.id },
+    { rating: 5, body: "Max (7) is right about the cows! Great for younger children.", authorName: "Catriona F.", expertId: maxExpert.id },
+    { rating: 5, body: "Leo (4) found the best puddles according to my toddler.", authorName: "Hugo S.", expertId: leoExpert.id },
+    { rating: 4, body: "Highly recommend following this family's guides if you have kids in Cambridge.", authorName: "Miriam T.", expertId: teresaExpert.id },
   ];
 
   for (const seed of reviewSeeds) {
