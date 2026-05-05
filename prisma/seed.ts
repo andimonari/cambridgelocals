@@ -146,7 +146,76 @@ async function main() {
     create: { name: "Settling In", slug: "settling-in" },
   });
 
-  // ── Experts (existing — rename to first name + last initial) ───
+  // ── Experts (Family - Andy, Teresa, Alex, Max, Leo) ───────────
+  const andy = await db.expert.upsert({
+    where: { slug: "andy-family-dad" },
+    update: {
+      name: "Andy",
+      bio: "Dad of the family, working in IT. Has lived in Cambridge for 15 years and knows the best tech spots and parent-friendly pubs.",
+      role: "IT Professional & Dad",
+    },
+    create: {
+      name: "Andy",
+      slug: "andy-family-dad",
+      bio: "Dad of the family, working in IT. Has lived in Cambridge for 15 years and knows the best tech spots and parent-friendly pubs.",
+      role: "IT Professional & Dad",
+      locationId: chesterton.id,
+    },
+  });
+
+  const teresa = await db.expert.upsert({
+    where: { slug: "teresa-family-mom" },
+    update: {
+      name: "Teresa",
+      bio: "Mom of the family and local doctor (GP). Expert on healthcare, schools, and navigating Cambridge life with three active boys.",
+      role: "GP & Mom",
+    },
+    create: {
+      name: "Teresa",
+      slug: "teresa-family-mom",
+      bio: "Mom of the family and local doctor (GP). Expert on healthcare, schools, and navigating Cambridge life with three active boys.",
+      role: "GP & Mom",
+      locationId: chesterton.id,
+    },
+  });
+
+  const alex = await db.expert.upsert({
+    where: { slug: "alex-family-son-10" },
+    update: { name: "Alex (10)" },
+    create: {
+      name: "Alex (10)",
+      slug: "alex-family-son-10",
+      bio: "Oldest of the three boys. Expert on skate parks, best ice cream spots, and the science museum.",
+      role: "Junior Explorer",
+      locationId: chesterton.id,
+    },
+  });
+
+  const max = await db.expert.upsert({
+    where: { slug: "max-family-son-7" },
+    update: { name: "Max (7)" },
+    create: {
+      name: "Max (7)",
+      slug: "max-family-son-7",
+      bio: "Middle brother. Knows all the best playgrounds and where to spot cows on the common.",
+      role: "Playground Expert",
+      locationId: chesterton.id,
+    },
+  });
+
+  const leo = await db.expert.upsert({
+    where: { slug: "leo-family-son-4" },
+    update: { name: "Leo (4)" },
+    create: {
+      name: "Leo (4)",
+      slug: "leo-family-son-4",
+      bio: "The youngest. Expert on the best ducks to feed and where to find the biggest puddles.",
+      role: "Toddler-at-Large",
+      locationId: chesterton.id,
+    },
+  });
+
+  // ── Experts (Legacy - being reassigned) ──────────────────────────
   const amelia = await db.expert.upsert({
     where: { slug: "amelia-hayes" },
     update: { name: "Amelia H." },
@@ -292,15 +361,15 @@ async function main() {
     },
   });
 
-  // ── Guides (existing) ──────────────────────────────────────────
+  // ── Guides (existing — reassigning to family) ──────────────────
   await db.guide.upsert({
     where: { slug: "cycling-cambridge-beginners-guide" },
-    update: {},
+    update: { authorId: andy.id },
     create: {
       title: "Cycling Cambridge: A Beginner's Guide",
       slug: "cycling-cambridge-beginners-guide",
       body: `Cambridge is one of the most cycle-friendly cities in the UK. With over 50% of residents commuting by bike, getting around on two wheels is both practical and joyful.\n\n## Where to Hire a Bike\n\nIf you don't have your own bike yet, Rutland Cycling near the train station offers day and weekly rentals. Alternatively, the city's Beryl bike-share scheme has stations across the centre.\n\n## Key Routes\n\n**Station to City Centre:** Follow Hills Road then turn onto Regent Street — mostly flat and well-signposted.\n\n**The Backs:** A scenic path behind the main colleges. Take a detour along the river for the classic Cambridge view.\n\n**West Cambridge:** Huntingdon Road is wide and has a dedicated cycle lane, perfect for reaching the science parks.\n\n## Safety Tips\n\n- Always lock your bike — theft is common near the market square.\n- Use lights at night; police do give fines without them.\n- Watch for pedestrians stepping out from between parked cars on King Street.`,
-      authorId: priya.id,
+      authorId: andy.id,
       categoryId: gettingAround.id,
       publishedAt: new Date("2026-04-01"),
     },
@@ -308,12 +377,12 @@ async function main() {
 
   await db.guide.upsert({
     where: { slug: "best-cheap-eats-cambridge-students" },
-    update: {},
+    update: { authorId: andy.id },
     create: {
       title: "Best Cheap Eats in Cambridge for Students",
       slug: "best-cheap-eats-cambridge-students",
       body: `Living on a student budget doesn't mean sacrificing good food. Here are my favourite spots that won't drain your maintenance loan.\n\n## Market Square\n\nThe daily market (Mon–Sat) is your best friend. The falafel van has been there for years and does an enormous wrap for under £5. The fruit and veg stall on the north side sells produce cheaper than any supermarket in the city.\n\n## Gardenia\n\nThis tiny Greek-Cypriot café on Rose Crescent serves enormous portions of moussaka and kleftiko. Cash only, always packed at lunch — arrive by 12:15.\n\n## The Copper Kettle\n\nRight opposite King's College, the Copper Kettle looks touristy but is genuinely good value for a full English breakfast. Students get 10% off with a valid university card.\n\n## Honest Burgers\n\nA splurge, but their £10 lunch deal (burger + fries + soft drink) is hard to beat. The queues move fast.`,
-      authorId: oliver.id,
+      authorId: andy.id,
       categoryId: foodDrink.id,
       publishedAt: new Date("2026-04-15"),
     },
@@ -321,12 +390,12 @@ async function main() {
 
   await db.guide.upsert({
     where: { slug: "surviving-freshers-week-cambridge" },
-    update: {},
+    update: { authorId: teresa.id },
     create: {
       title: "Surviving Freshers' Week at Cambridge",
       slug: "surviving-freshers-week-cambridge",
       body: `Freshers' Week at Cambridge — or Freshers' Fortnight, as it often feels — is overwhelming in the best possible way. Here's what I wish I'd known.\n\n## Pace Yourself\n\nYou don't need to attend every single event. The CUSU Freshers' Fair is non-negotiable — that's where you sign up for societies. Everything else is negotiable.\n\n## Your College, Not Just the University\n\nCambridge life is organised around colleges, not departments. Your college JCR (Junior Combination Room) will have social events, a welfare team, and resources. Get involved early.\n\n## The Academic Side Starts Fast\n\nUnlike many UK universities, Cambridge supervision work can begin in week one. Check your timetable the day you arrive and don't assume you have a grace week.\n\n## Find Your People\n\nCambridge can feel competitive. The best antidote is finding your niche early — a sport, a society, a casual study group. The friendships you make in freshers' week often last your whole degree.`,
-      authorId: amelia.id,
+      authorId: teresa.id,
       categoryId: studentLife.id,
       publishedAt: new Date("2026-04-20"),
     },
@@ -920,12 +989,188 @@ Late applications go into a second round and significantly reduce your chances o
 ## Practical Advice
 
 Talk to parents in your prospective neighbourhood before relying solely on Ofsted reports. A good Ofsted rating from a few years ago may not reflect current conditions, and vice versa. The best intelligence on what a school is actually like in a particular year comes from parents who have children there now.`,
-      authorId: kate.id,
+      authorId: teresa.id,
       categoryId: schoolsEducation.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
     },
   });
+
+  await db.guide.upsert({
+    where: { slug: "registering-with-gp-cambridge" },
+    update: {},
+    create: {
+      title: "Registering with a GP in Cambridge: What You Need to Know",
+      slug: "registering-with-gp-cambridge",
+      status: "published",
+      body: `One of the most important things to do when you arrive in Cambridge is register with a GP surgery. Do not wait until you are unwell — the registration process takes time, and surgeries in Cambridge are under significant pressure. Registering early gives you access to NHS care, prescriptions, and referrals when you actually need them.
+
+## How to Register
+
+All NHS GP surgeries accept patients based on their home address falling within the practice's registration area. Most Cambridge surgeries allow online registration via their website or through the NHS App, which is the fastest route. You will typically need proof of address (utility bill, bank statement, or tenancy agreement) and photographic ID.
+
+If a surgery near you is not accepting new patients — which does happen, particularly in heavily populated CB1 postcodes — you have the right to register at any practice within a reasonable distance. Call the surgery directly and explain your situation before assuming it is closed to you.
+
+## Main Surgeries by Area
+
+**City Centre and CB1**: The Brookside Practice on Trumpington Street is well-regarded and covers much of the central CB2 area. Mill Road Surgery is popular with CB1 residents and has good GP continuity.
+
+**CB4 (Chesterton and north)**: Chesterton Medical Centre on Union Lane is the main practice for north Cambridge, with a larger-than-average team and reasonable appointment wait times.
+
+**CB2 (Trumpington and south)**: The Trumpington Street Practice handles much of the southern CB2 area. The Firs Medical Centre is a good option for those closer to Hills Road.
+
+## If You Cannot Register Immediately
+
+Use **NHS 111** (call 111 or visit 111.nhs.uk) for non-emergency medical advice and out-of-hours guidance. The Walk-in Centre at Addenbrooke's Hospital handles minor injuries and ailments without a GP referral — queues can be long but the care is good.
+
+Boots Pharmacy on Sidney Street has an NHS-funded minor ailments service that treats a range of common conditions without a GP appointment.
+
+## What Happens After Registration
+
+Most surgeries offer online booking via the NHS App or their patient portal. Routine appointments book up quickly — request them several days in advance. For urgent same-day appointments, call from 8am when slots are released. For continuity on long-term conditions, bring a summary letter from your previous GP when you first register — it speeds up records transfer and ensures repeat prescriptions are not interrupted.`,
+      authorId: teresa.id,
+      categoryId: healthcare.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-05-03"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "best-areas-to-live-cambridge" },
+    update: {},
+    create: {
+      title: "Best Areas to Live in Cambridge: A Neighbourhood Guide",
+      slug: "best-areas-to-live-cambridge",
+      status: "published",
+      body: `Cambridge is a compact city, and most areas are within reasonable cycling or walking distance of the centre. But where you live shapes your experience considerably — neighbourhood character, transport access, school catchments, and rental prices vary significantly across a city that is only a few miles wide.
+
+## For Families
+
+**Trumpington** is the area most recommended by Cambridge parents with young children. The neighbourhood has expanded significantly with new-build development over the past decade, and the schools — both primaries and Trumpington Community College — are well-regarded. The Addenbrooke's campus is walkable, Trumpington Meadows country park provides open space, and the Waitrose on Trumpington Road makes daily life easy. Rents and prices are higher than Cherry Hinton but lower than Newnham.
+
+**Cherry Hinton** offers more affordable housing while retaining good access to the centre. The community orchards, Cherry Hinton Hall park, and the annual Folk Festival are genuine assets. Schools in the area are solid, and the CB1 postcode means short bus or cycle times to town.
+
+**Chesterton** retains a strong neighbourhood identity. Milton Road has independent shops and a GP surgery, Chesterton Academy has improved significantly, and property prices are lower than equivalent streets south of the river.
+
+## For Professionals
+
+**Mill Road and CB1** is where most newcomers without children end up, and with good reason. The independent shops, cafés, and restaurants make day-to-day life genuinely pleasant. The area is flat and well-connected by cycling. Rents are moderate — cheaper than Newnham, more characterful than Arbury.
+
+**Newnham** is a quieter residential area close to the university, with beautiful Victorian and Edwardian terraces and good walking routes to the Backs and Grantchester. It is expensive for what you get in terms of space, but the quiet streets and proximity to open countryside are hard to put a price on.
+
+**Castle Hill and Chesterton Road** offer the combination of central access and residential character that is hard to find close to the city centre proper. Huntingdon Road has dedicated cycling infrastructure and a reliable bus route.
+
+## For Students and Early Career Researchers
+
+**Romsey and Coleridge** are the postcodes where most Cambridge postgraduates and early-career researchers end up, and they are excellent choices. Walkable to the centre, well-connected by bike to the science parks and hospitals, and notably cheaper than equivalent central addresses.
+
+**Arbury** in the north is the most affordable area with direct bus access and is popular with those on tighter budgets. It is slightly further from the main university departments but the cost difference can be significant.
+
+## What to Avoid
+
+Very central Cambridge addresses — CB2 postcodes closest to the market and colleges — are expensive and noisy during tourist season. Unless you specifically need to be within five minutes of the centre, the areas above offer much better value and quality of life.`,
+      authorId: andy.id,
+      categoryId: settlingIn.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-05-03"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "cambridge-market-square-guide" },
+    update: {},
+    create: {
+      title: "Cambridge Market Square: What to Buy and When to Go",
+      slug: "cambridge-market-square-guide",
+      status: "published",
+      body: `Cambridge Market has been trading in the centre of the city since the Middle Ages, and in its current form it remains one of the most genuinely useful daily markets in England. Unlike many town centre markets that have drifted towards tourist souvenirs, the Cambridge Market retains a strong core of traders selling things people actually need.
+
+## The Stalls
+
+The market runs Monday to Saturday, with some stalls present daily and others appearing only on certain days. The core traders include several fruit and vegetable stalls (competitive pricing, good seasonal range), a cheese stall with a better selection than most supermarkets, a fish stall with fresh Cambridge-area supply, and various hot food vans for lunch.
+
+The secondhand books section on the north side is one of Cambridge's quiet pleasures. The range is variable and depends on the week, but paperback fiction, local history, and academic titles often appear at excellent prices.
+
+## What the Market Does Well
+
+Fresh produce pricing is significantly better than the Grand Arcade supermarkets for most fruit and vegetables. Buying from the market rather than a supermarket for weekly veg is genuinely cost-effective.
+
+The craft and maker stalls are stronger on Saturdays — prints, jewellery, ceramics, and preserved foods from local producers.
+
+## What the Market Does Less Well
+
+The souvenir and tourist section has grown over the years and takes up more of the square than residents would prefer. Navigate around it.
+
+## Practical
+
+The market is busiest between 10am and 1pm. Arrive before 10am for the full choice at the food stalls. The surrounding streets become very congested at lunchtime — approaching on foot or by bike is easier than by car or bus.`,
+      authorId: alex.id,
+      categoryId: shopping.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-04-05"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "jesus-green-lido-cambridge" },
+    update: {},
+    create: {
+      title: "Jesus Green Lido: Open-Air Swimming in the City Centre",
+      slug: "jesus-green-lido-cambridge",
+      status: "published",
+      body: `Jesus Green Lido is one of Cambridge's most distinctive amenities — a 90-metre outdoor swimming pool on the banks of the Cam, open from early May through mid-September. It is free to enter and has been a Cambridge institution since 1923.
+
+## What to Expect
+
+The pool is 90 metres long and unheated, which means water temperatures depend on the season and the weather. In late May and early June it is bracing; by August it can reach a genuinely comfortable temperature. The pool has separate shallow and deep sections and is popular for lane swimming in the morning and more casual use in the afternoon.
+
+The changing facilities are basic — lockers exist but bring your own padlock. Arrive early on warm weekends; the pool reaches capacity and will close its gates.
+
+## Surrounding Park
+
+Jesus Green itself is one of the most used open spaces in Cambridge: flat, well-maintained, and long enough to run the full length alongside the river. The adjacent Midsummer Common is connected and hosts the annual Strawberry Fair and Midsummer Fair.
+
+## Getting There
+
+Jesus Green is north of the city centre, accessed from Victoria Avenue or Jesus Lock. It is a ten-minute walk from the Grafton Centre and easily cyclable from almost anywhere in Cambridge.
+
+## Cost
+
+Free. No booking required. Bring a towel and arrive prepared for variable water temperatures.`,
+      authorId: max.id,
+      categoryId: sportsFitness.id,
+      locationId: cityCenter.id,
+      publishedAt: new Date("2026-04-10"),
+    },
+  });
+
+  await db.guide.upsert({
+    where: { slug: "parks-nature-toddler-guide" },
+    update: {},
+    create: {
+      title: "Ducks and Puddles: A 4-Year-Old's Guide to Cambridge Parks",
+      slug: "parks-nature-toddler-guide",
+      status: "published",
+      body: `Cambridge has lots of green places. Here are the best ones for when you are four.
+
+## The Best Ducks
+
+The pond at the Botanic Garden is good, but the ducks near the Mill Pond are the hungriest. They like it when you watch them paddle. Don't give them bread, give them peas!
+
+## The Biggest Puddles
+
+When it rains, Chesterton Recreation Ground has the best puddles for jumping. You need big boots.
+
+## The Cows
+
+The cows on Coe Fen are very big but they are friendly. They just want to eat the grass. Don't touch them, just wave!`,
+      authorId: leo.id,
+      categoryId: parksNature.id,
+      locationId: chesterton.id,
+      publishedAt: new Date("2026-05-01"),
+    },
+  });
+
 
   await db.guide.upsert({
     where: { slug: "cambridge-estate-agents-guide" },
