@@ -68,12 +68,12 @@ export default async function HomePage() {
               Local knowledge, shared openly
             </p>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4 leading-tight">
-              Cambridge, explained by people who live here
+              Cambridge, explained by the local family
             </h1>
             <p className="text-base sm:text-lg text-slate-200 max-w-2xl mx-auto mb-5">
-              Local experts share what they know about Cambridge, England — for
-              students arriving at university, tourists wanting to go beyond the
-              postcard, and professionals relocating to the city.
+              Andy, Teresa, and their three boys share what they know about
+              Cambridge, England — for families moving to the area, students
+              arriving at university, and tourists wanting to go beyond the postcard.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
@@ -183,11 +183,11 @@ export default async function HomePage() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-8">
               <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-3">
-                Meet the experts
+                Meet the family
               </h2>
               <p className="text-stone-500 max-w-xl mx-auto">
-                Real Cambridge residents — academics, tech workers, and students — sharing
-                what they know.
+                Andy, Teresa, and their boys Alex, Max, and Leo — long-term Cambridge
+                residents sharing their favorite spots and practical advice.
               </p>
             </div>
             {experts.length === 0 ? (
