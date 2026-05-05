@@ -216,150 +216,6 @@ async function main() {
   });
 
   // ── Experts (Legacy - being reassigned) ──────────────────────────
-  const amelia = await db.expert.upsert({
-    where: { slug: "amelia-hayes" },
-    update: { name: "Amelia H." },
-    create: {
-      name: "Amelia H.",
-      slug: "amelia-hayes",
-      bio: "PhD student in History at Pembroke College. Cambridge native who loves uncovering the city's hidden stories.",
-      role: "Local Historian",
-      locationId: cityCenter.id,
-    },
-  });
-
-  const priya = await db.expert.upsert({
-    where: { slug: "priya-sharma" },
-    update: { name: "Priya S." },
-    create: {
-      name: "Priya S.",
-      slug: "priya-sharma",
-      bio: "Computer Science graduate, now working at ARM. Expert on the tech scene and student hacks for living in Cambridge.",
-      role: "Tech Professional",
-      locationId: westCambridge.id,
-    },
-  });
-
-  const oliver = await db.expert.upsert({
-    where: { slug: "oliver-chen" },
-    update: { name: "Oliver C." },
-    create: {
-      name: "Oliver C.",
-      slug: "oliver-chen",
-      bio: "Third-year undergraduate at King's College. Cyclist, punter, and self-appointed guide to the best cheap eats in Cambridge.",
-      role: "Undergraduate Student",
-      locationId: cityCenter.id,
-    },
-  });
-
-  // ── Experts (new) ──────────────────────────────────────────────
-  const james = await db.expert.upsert({
-    where: { slug: "james-t" },
-    update: {},
-    create: {
-      name: "James T.",
-      slug: "james-t",
-      bio: "Head porter at a central Cambridge college for over 22 years. Knows every shortcut, every formal hall tradition, and exactly which gates are locked after midnight.",
-      role: "College Porter",
-      locationId: cityCenter.id,
-    },
-  });
-
-  const sophie = await db.expert.upsert({
-    where: { slug: "sophie-r" },
-    update: {},
-    create: {
-      name: "Sophie R.",
-      slug: "sophie-r",
-      bio: "Manages a beloved pub on Gwydir Street and has run Cambridge pubs for fifteen years. Mill Road is home — she knows every landlord, every local character, and the best beer gardens in a five-mile radius.",
-      role: "Pub Manager",
-      locationId: millRoad.id,
-    },
-  });
-
-  const marcus = await db.expert.upsert({
-    where: { slug: "marcus-w" },
-    update: {},
-    create: {
-      name: "Marcus W.",
-      slug: "marcus-w",
-      bio: "Third-generation market stallholder selling cheese and charcuterie on Cambridge Market. Knows the market's rhythms, the best seasonal produce, and which traders have been here longer than the paving stones.",
-      role: "Market Stallholder",
-      locationId: cityCenter.id,
-    },
-  });
-
-  const elena = await db.expert.upsert({
-    where: { slug: "elena-k" },
-    update: {},
-    create: {
-      name: "Elena K.",
-      slug: "elena-k",
-      bio: "Postdoctoral researcher in the Biochemistry department. Originally from Vienna, she has navigated Cambridge's postdoc world — housing, healthcare, social life — and has advice no induction guide will give you.",
-      role: "Postdoctoral Researcher",
-      locationId: trumpington.id,
-    },
-  });
-
-  const david = await db.expert.upsert({
-    where: { slug: "david-b" },
-    update: {},
-    create: {
-      name: "David B.",
-      slug: "david-b",
-      bio: "Printmaker and painter with a studio near Castle Hill. Longtime Cambridge resident, occasional art tour guide, and the person to ask about what is actually worth seeing in the smaller galleries.",
-      role: "Local Artist",
-      locationId: castleHill.id,
-    },
-  });
-
-  const martin = await db.expert.upsert({
-    where: { slug: "martin-r" },
-    update: {},
-    create: {
-      name: "Martin R.",
-      slug: "martin-r",
-      bio: "Retired Fellow at Gonville & Caius, where he taught English Literature for 35 years. Now writes, walks the Backs, and knows the university's ceremonial traditions better than most active staff.",
-      role: "Retired Fellow",
-      locationId: newnham.id,
-    },
-  });
-
-  const rachel = await db.expert.upsert({
-    where: { slug: "rachel-n" },
-    update: {},
-    create: {
-      name: "Rachel N.",
-      slug: "rachel-n",
-      bio: "Senior nurse at Addenbrooke's Hospital. Has lived in Trumpington for eight years and knows the practical realities of Cambridge life that students and newcomers often discover too late.",
-      role: "NHS Nurse",
-      locationId: trumpington.id,
-    },
-  });
-
-  const kate = await db.expert.upsert({
-    where: { slug: "kate-m" },
-    update: {},
-    create: {
-      name: "Kate M.",
-      slug: "kate-m",
-      bio: "Primary school governor and parent of two children who have gone through the full Cambridge state school system. Moved from Leeds eight years ago and has navigated catchment areas, secondary applications, and sixth form admissions from the inside.",
-      role: "School Governor",
-      locationId: chesterton.id,
-    },
-  });
-
-  const tom = await db.expert.upsert({
-    where: { slug: "tom-r" },
-    update: {},
-    create: {
-      name: "Tom R.",
-      slug: "tom-r",
-      bio: "Senior negotiator at a Cambridge residential estate agency for twelve years, specialising in lettings and sales across the CB1–CB5 postcodes. Has helped hundreds of newcomers find homes and knows which agencies are worth approaching and which to avoid.",
-      role: "Estate Agent",
-      locationId: cityCenter.id,
-    },
-  });
 
   // ── Guides (existing — reassigning to family) ──────────────────
   await db.guide.upsert({
@@ -432,7 +288,7 @@ Avoid Saturday lunchtime in summer — the tourist coaches descend and the place
 Benet Street runs between King's Parade and Free School Lane. The entrance is through a stone archway into the courtyard — do not miss it by going straight to the front bar, which is fine but lacks the character of the yard-facing rooms.
 
 The Eagle is not the cheapest pub in Cambridge, but it is one of those places you should visit properly at least once — linger over a pint in the DNA Bar and think about what was figured out around the corner.`,
-      authorId: james.id,
+      authorId: andy.id,
       categoryId: foodDrink.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-03-10"),
@@ -467,7 +323,7 @@ A short, seasonal menu served lunchtimes and evenings. Nothing elaborate — a p
 From the city centre, walk down Parkside past the police station, turn left onto Prospect Row, and look for the small sign. It is genuinely easy to miss, which is part of the point. If you are cycling, there is a rack on the street outside.
 
 The Free Press is what a neighbourhood pub should be. Go on a Tuesday evening, nurse a pint of something local, and enjoy the rare Cambridge experience of not being able to hear anyone at the next table.`,
-      authorId: sophie.id,
+      authorId: teresa.id,
       categoryId: nightlife.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-03-18"),
@@ -502,7 +358,7 @@ Mill Road is Cambridge's most genuinely cosmopolitan street, and the Blue reflec
 Gwydir Street is parallel to Mill Road, running behind it on the east side. The Blue is roughly halfway down. It is not served by a bus stop directly, but Mill Road is walkable from the city centre in twenty minutes or cyclable in five.
 
 Opening hours are generous — they open at noon most days and last orders is late enough to make an evening of it. The kitchen closes around 9 pm.`,
-      authorId: sophie.id,
+      authorId: teresa.id,
       categoryId: nightlife.id,
       locationId: millRoad.id,
       publishedAt: new Date("2026-03-25"),
@@ -540,7 +396,7 @@ Aromi now has a second location on Market Passage, near the covered market. It h
 ## Getting There
 
 Benet Street is a short walk from King's Parade and Corpus Christi College. It is pedestrianised most of the day, so you will be approaching on foot.`,
-      authorId: marcus.id,
+      authorId: andy.id,
       categoryId: foodDrink.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-02"),
@@ -575,7 +431,7 @@ These are limited, which is honest. There is a smoked cauliflower option and the
 A concise list of American-style craft beers on tap, plus a bourbon and whiskey selection that rewards exploration. The house margarita is better than it needs to be.
 
 The restaurant is small — around 40 covers — and the décor is stripped-back industrial. It is loud when full, which adds to the atmosphere rather than detracting from it.`,
-      authorId: oliver.id,
+      authorId: alex.id,
       categoryId: foodDrink.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-08"),
@@ -611,7 +467,7 @@ They do a full range of bread and pastries that are worth exploring beyond the b
 The main branch is at 52 Trumpington Street, a few minutes' walk south of the city centre. There is a second location on St John's Street. The original is the correct choice if you have the option.
 
 They open at 8 am on weekdays. The Chelsea buns sell out on popular days — if it is a Saturday afternoon in June, do not assume there will be any left.`,
-      authorId: marcus.id,
+      authorId: andy.id,
       categoryId: foodDrink.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-12"),
@@ -646,7 +502,7 @@ Gwydir Street is popular for laptop workers and has adequate plug sockets for a 
 ## The Roastery
 
 Hot Numbers sells bags of their roasted coffee to take home, and they run occasional cupping sessions open to the public. Check their website for dates — these are worth attending if you want to understand why the same bean can taste completely different depending on how it is prepared.`,
-      authorId: elena.id,
+      authorId: teresa.id,
       categoryId: foodDrink.id,
       locationId: millRoad.id,
       publishedAt: new Date("2026-04-14"),
@@ -682,7 +538,7 @@ The café serves good seasonal lunches and the kind of cake that justifies the w
 The Discovery Centre runs activities for children through school holidays and at weekends. The pond dipping and seed identification sessions are consistently popular.
 
 There is no better place in Cambridge for a slow, purposeful hour away from the traffic and the tourist clusters of the centre.`,
-      authorId: david.id,
+      authorId: andy.id,
       categoryId: parksNature.id,
       locationId: trumpington.id,
       publishedAt: new Date("2026-04-18"),
@@ -717,7 +573,7 @@ The museum is closed on Mondays. Opening hours are 10 am to 5 pm Tuesday to Satu
 The café in the courtyard serves good lunches and is a civilised option for a midday break. Tables in the courtyard itself are available in warmer weather.
 
 There is no reason not to visit. Free, excellent, and twenty minutes on foot from almost anywhere in the city.`,
-      authorId: david.id,
+      authorId: andy.id,
       categoryId: cultureMuseums.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-22"),
@@ -754,7 +610,7 @@ The Backs is where punt hire operators are concentrated. Scudamore's and Cambrid
 ## Timing
 
 October and late March are the most pleasant months for walking the Backs: good light, manageable crowds, and the college gardens transitioning between seasons. August is the most crowded and the least enjoyable.`,
-      authorId: martin.id,
+      authorId: teresa.id,
       categoryId: parksNature.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-25"),
@@ -794,7 +650,7 @@ Bus frequency drops sharply after 7 pm and significantly after 9 pm. Late night 
 ## Park & Ride
 
 Cambridge has five Park & Ride sites — Trumpington, Babraham Road, Newmarket Road, Milton, and Madingley Road. All are connected to the city centre by frequent buses and are considerably cheaper than parking in town. If you are driving in from outside Cambridge, these are worth using.`,
-      authorId: rachel.id,
+      authorId: teresa.id,
       categoryId: gettingAround.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-28"),
@@ -831,7 +687,7 @@ Quick-release wheels and saddles are popular targets separately from the bike it
 ## Registration
 
 Register your bike on BikeRegister, photograph the frame and note the serial number. It will not prevent theft but it significantly increases the chances of recovery and supports a police report if you need one.`,
-      authorId: priya.id,
+      authorId: andy.id,
       categoryId: gettingAround.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-30"),
@@ -866,7 +722,7 @@ From the Silver Street punts, heading north through the Backs towards Magdalene 
 ## When to Go
 
 Weekday mornings from April to June offer the best combination of good weather odds, manageable crowds, and available boats. August weekends are the opposite of this.`,
-      authorId: oliver.id,
+      authorId: alex.id,
       categoryId: gettingAround.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-05-01"),
@@ -903,7 +759,7 @@ Letting agents in Cambridge vary significantly in quality. The University's acco
 Check cycle storage before signing anything. In a city where the bike is your primary transport, a flat with nowhere to store a bike securely is a serious problem.
 
 Energy Performance Certificates matter in older Cambridge terraces, which can be badly insulated. An EPC rating of D or below on a Victorian terrace usually means expensive heating bills.`,
-      authorId: elena.id,
+      authorId: teresa.id,
       categoryId: housingAccommodation.id,
       locationId: millRoad.id,
       publishedAt: new Date("2026-05-02"),
@@ -946,7 +802,7 @@ Energy Performance Certificates matter in older Cambridge terraces, which can be
 ## What to Avoid
 
 Very central Cambridge addresses — CB2 postcodes closest to the market and colleges — are expensive and noisy during tourist season. Unless you specifically need to be within five minutes of the centre, the areas above offer much better value and quality of life.`,
-      authorId: elena.id,
+      authorId: teresa.id,
       categoryId: settlingIn.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
@@ -1206,7 +1062,7 @@ In Cambridge's rental market, good properties go within 24–48 hours. Have your
 For buying, a typical terraced house in CB1 is listed at £400,000–550,000; semi-detached in Chesterton or Cherry Hinton at £450,000–600,000. The spring market (March–June) is the most competitive.
 
 Instruct your solicitor before your offer is accepted. The same small pool of Cambridge conveyancers handles most local transactions, and good ones book up fast in a rising market.`,
-      authorId: tom.id,
+      authorId: andy.id,
       categoryId: estateAgentsProperty.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
@@ -1245,7 +1101,7 @@ Boots Pharmacy on Sidney Street has an NHS-funded minor ailments service that tr
 ## What Happens After Registration
 
 Most surgeries offer online booking via the NHS App or their patient portal. Routine appointments book up quickly — request them several days in advance. For urgent same-day appointments, call from 8am when slots are released. For continuity on long-term conditions, bring a summary letter from your previous GP when you first register — it speeds up records transfer and ensures repeat prescriptions are not interrupted.`,
-      authorId: rachel.id,
+      authorId: teresa.id,
       categoryId: healthcare.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
@@ -1288,7 +1144,7 @@ Two locks are non-negotiable. Budget £60–90 for a good D-lock (Kryptonite, Ab
 ## The Cycling Community
 
 Cambridge Cycling Campaign (Camcycle) runs events, advocates for infrastructure improvements, and maintains the best map of recommended cycle routes through the city — including quieter back-street options that are not obvious to newcomers. Their website is a practical first resource.`,
-      authorId: priya.id,
+      authorId: andy.id,
       categoryId: cycling.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
@@ -1327,7 +1183,7 @@ Cambridge City Council runs alternate fortnightly collections: one week blue (re
 ## Broadband
 
 Full-fibre broadband is available on most Cambridge streets. Providers include BT/EE via Openreach, Virgin Media, and Community Fibre. Standard superfast packages run £25–35 per month. Many Cambridge rentals include broadband in all-bills-included arrangements — clarify this with your landlord before setting up a separate contract.`,
-      authorId: elena.id,
+      authorId: teresa.id,
       categoryId: settlingIn.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
@@ -1368,7 +1224,7 @@ Cambridge Astronomical Society, University public lecture series (open to non-me
 Mill Road Winter Fair in early December is the best single event for getting a feel for the Mill Road community. Cherry Hinton Village Festival, Midsummer Fair, and college Open Days throughout the year provide reasons to engage with different parts of the city.
 
 WhatsApp neighbourhood groups and the Cambridge Community Forum on Facebook are where practical Cambridge conversation happens — useful for finding a plumber, asking about local services, or understanding what that helicopter was doing at 2am.`,
-      authorId: elena.id,
+      authorId: teresa.id,
       categoryId: settlingIn.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
@@ -1407,7 +1263,7 @@ Cambridge Station and Cambridge North (Chesterton) provide excellent regional ac
 ## Shopping Without a Car
 
 The central city is walkable for most shopping. Tesco Express, Co-op, and various independent grocery shops are scattered throughout the residential postcodes; you are rarely more than ten minutes from a food shop by bike. For large grocery shops, a cargo bike trailer or a good backpack is practical. For large deliveries — furniture, appliances — order direct; almost everything delivers to Cambridge without difficulty given the city's proximity to major logistics hubs.`,
-      authorId: rachel.id,
+      authorId: teresa.id,
       categoryId: gettingAround.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
@@ -1443,7 +1299,7 @@ Jesus Green is north of the city centre, accessed from Victoria Avenue or Jesus 
 ## Cost
 
 Free. No booking required. Bring a towel and arrive prepared for variable water temperatures.`,
-      authorId: rachel.id,
+      authorId: teresa.id,
       categoryId: sportsFitness.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-10"),
@@ -1476,7 +1332,7 @@ The hilliest of the Cambridge area options — relatively unusual in this flat p
 ## How to Register
 
 Register once at parkrun.org.uk, receive a barcode, and show up. Print your barcode or use the app. Results are sent by email within a few hours and your times are tracked permanently. Volunteering is straightforward and valued — the events depend on a roster of weekly volunteers.`,
-      authorId: rachel.id,
+      authorId: teresa.id,
       categoryId: sportsFitness.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-16"),
@@ -1505,7 +1361,7 @@ Cambridge's traditional form of competitive rowing is Bumps — a format unique 
 ## The River
 
 The upper Cam (above Jesus Lock) is where most rowing takes place. It is shared with punts, kayaks, and narrow boats, which requires constant vigilance. Priority conventions exist but are not universally understood. Sunday mornings are the best time for a clear river.`,
-      authorId: oliver.id,
+      authorId: alex.id,
       categoryId: sportsFitness.id,
       locationId: chesterton.id,
       publishedAt: new Date("2026-04-20"),
@@ -1541,7 +1397,7 @@ The souvenir and tourist section has grown over the years and takes up more of t
 ## Practical
 
 The market is busiest between 10am and 1pm. Arrive before 10am for the full choice at the food stalls. The surrounding streets become very congested at lunchtime — approaching on foot or by bike is easier than by car or bus.`,
-      authorId: marcus.id,
+      authorId: andy.id,
       categoryId: shopping.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-05"),
@@ -1570,7 +1426,7 @@ The covered market represents a form of retail that is increasingly rare: small,
 ## Hours and Access
 
 The covered market is open six days a week, typically 9am–5:30pm Monday to Saturday. Some individual traders keep shorter hours. The market is accessible and undercover, which makes it a practical destination year-round.`,
-      authorId: marcus.id,
+      authorId: andy.id,
       categoryId: shopping.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-09"),
@@ -1602,7 +1458,7 @@ The contemporary gallery extension (reopened 2018) sits adjacent to the house an
 Castle Street is a short walk from Magdalene Bridge. The house is closed on Mondays. Gallery and cafe hours vary — check the website before visiting. The café is small but good.
 
 Free entry to the gallery; house visits are free but require a timed slot from the desk.`,
-      authorId: david.id,
+      authorId: andy.id,
       categoryId: cultureMuseums.id,
       locationId: castleHill.id,
       publishedAt: new Date("2026-04-19"),
@@ -1631,7 +1487,7 @@ The Footlights revue appears at the ADC each year, typically in late spring befo
 ## Booking
 
 The ADC box office is online or by phone. Some shows sell out quickly, particularly the Footlights revue and popular musicals. Booking a few days in advance is sensible for anything in the final week of a run.`,
-      authorId: martin.id,
+      authorId: teresa.id,
       categoryId: cultureMuseums.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-24"),
@@ -1663,7 +1519,7 @@ Most of the better Cambridge bars have been mentioned in the pub guides. For lat
 ## Practical
 
 Cambridge closes early by metropolitan standards. Last entry at most clubs is 2am; last orders are 3am at the latest. Pre-drinking at someone's college or flat is the norm. Panther Taxis is reliable at the end of the night; Uber can be unpredictable at peak hours.`,
-      authorId: james.id,
+      authorId: andy.id,
       categoryId: nightlife.id,
       locationId: cityCenter.id,
       publishedAt: new Date("2026-04-21"),
@@ -1699,7 +1555,7 @@ The walk can also be done by punt. Scudamore's operates a one-way punt hire from
 ## When to Go
 
 May to September for the full meadow experience. November to February for bracing solitude and unobstructed views. Avoid August weekend afternoons if you want peace.`,
-      authorId: amelia.id,
+      authorId: andy.id,
       categoryId: parksNature.id,
       locationId: newnham.id,
       publishedAt: new Date("2026-04-26"),
@@ -1728,7 +1584,7 @@ The surrounding parkland is a straightforward community green space with play eq
 ## Getting There
 
 Cherry Hinton Hall is accessible from the Citi 1 bus (towards Addenbrooke's and Trumpington) — stop at Queen Edith's Way, then walk south. By bicycle from the city centre takes around 15–20 minutes via Queen Edith's Way.`,
-      authorId: david.id,
+      authorId: andy.id,
       categoryId: parksNature.id,
       locationId: cherryHinton.id,
       publishedAt: new Date("2026-04-29"),
