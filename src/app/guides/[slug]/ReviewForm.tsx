@@ -48,12 +48,12 @@ export default function ReviewForm({ guideSlug }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm space-y-4">
-      <h3 className="font-semibold text-gray-900 text-sm">Leave a review</h3>
+    <form onSubmit={handleSubmit} className="bg-surface rounded-2xl p-6 space-y-4">
+      <h3 className="font-semibold text-foreground text-sm">Leave a review</h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="review-name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="review-name" className="block text-sm font-medium text-foreground mb-1.5">
             Your name
           </label>
           <input
@@ -63,18 +63,18 @@ export default function ReviewForm({ guideSlug }: Props) {
             onChange={(e) => setAuthorName(e.target.value)}
             maxLength={80}
             placeholder="e.g. Jo from Mill Road"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
           />
         </div>
         <div>
-          <label htmlFor="review-rating" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="review-rating" className="block text-sm font-medium text-foreground mb-1.5">
             Rating
           </label>
           <select
             id="review-rating"
             value={rating}
             onChange={(e) => setRating(Number(e.target.value))}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
           >
             {[5, 4, 3, 2, 1].map((n) => (
               <option key={n} value={n}>
@@ -87,7 +87,7 @@ export default function ReviewForm({ guideSlug }: Props) {
       </div>
 
       <div>
-        <label htmlFor="review-body" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="review-body" className="block text-sm font-medium text-foreground mb-1.5">
           Your review
         </label>
         <textarea
@@ -97,17 +97,17 @@ export default function ReviewForm({ guideSlug }: Props) {
           rows={3}
           maxLength={2000}
           placeholder="What did you think?"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"
+          className="w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors resize-y"
         />
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3.5 py-2.5">
           {error}
         </p>
       )}
       {done && !error && (
-        <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+        <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-xl px-3.5 py-2.5">
           Thanks for your review!
         </p>
       )}
@@ -115,7 +115,7 @@ export default function ReviewForm({ guideSlug }: Props) {
       <button
         type="submit"
         disabled={submitting}
-        className="px-4 py-2 rounded-lg bg-indigo-600 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+        className="px-6 py-2.5 rounded-full bg-accent text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50 transition-colors duration-200"
       >
         {submitting ? "Submitting…" : "Submit review"}
       </button>

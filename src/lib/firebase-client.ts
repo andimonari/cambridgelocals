@@ -1,5 +1,5 @@
 import { getApps, initializeApp } from "firebase/app"
-import { connectAuthEmulator, getAuth } from "firebase/auth"
+import { connectAuthEmulator, getAuth, GoogleAuthProvider } from "firebase/auth"
 
 // Browser-side Firebase SDK — only import this from Client Components.
 // Public by design: Firebase web API keys identify the project, they don't
@@ -13,6 +13,9 @@ const firebaseConfig = {
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig)
 
 export const clientAuth = getAuth(app)
+
+export const googleProvider = new GoogleAuthProvider()
+googleProvider.setCustomParameters({ prompt: "select_account" })
 
 if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === "true" && typeof window !== "undefined") {
   connectAuthEmulator(clientAuth, "http://127.0.0.1:9099", { disableWarnings: true })

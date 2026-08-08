@@ -7,6 +7,9 @@ export { SESSION_COOKIE, SESSION_MAX_AGE_MS } from "@/lib/session-constants"
 export type CurrentUser = {
   uid: string
   email: string | null
+  /** From the Firebase Auth profile — populated for Google sign-in, usually absent for email-link. */
+  name: string | null
+  picture: string | null
 }
 
 /**
@@ -23,7 +26,12 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
 
   try {
     const decoded = await adminAuth.verifySessionCookie(sessionCookie, true)
-    return { uid: decoded.uid, email: decoded.email ?? null }
+    return {
+      uid: decoded.uid,
+      email: decoded.email ?? null,
+      name: (decoded.name as string | undefined) ?? null,
+      picture: (decoded.picture as string | undefined) ?? null,
+    }
   } catch {
     return null
   }

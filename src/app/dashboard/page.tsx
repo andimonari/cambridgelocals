@@ -12,9 +12,9 @@ export const metadata = {
 }
 
 const statusConfig: Record<GuideStatus, { label: string; className: string }> = {
-  draft: { label: "Draft", className: "bg-gray-100 text-gray-500" },
-  submitted: { label: "In review", className: "bg-yellow-100 text-yellow-700" },
-  published: { label: "Published", className: "bg-green-100 text-green-700" },
+  draft: { label: "Draft", className: "bg-line-soft text-muted" },
+  submitted: { label: "In review", className: "bg-amber-100 text-amber-700" },
+  published: { label: "Published", className: "bg-emerald-100 text-emerald-700" },
   rejected: { label: "Rejected", className: "bg-red-100 text-red-600" },
 }
 
@@ -26,40 +26,40 @@ export default async function DashboardPage() {
   const guides = expert ? await getGuidesByAuthor(expert.slug) : []
 
   return (
-    <div className="min-h-screen bg-amber-50/30 text-gray-900">
-      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link href={ROUTES.home} className="font-semibold text-gray-900 tracking-tight">
+    <div className="min-h-screen bg-white text-foreground">
+      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-xl border-b border-line-soft">
+        <div className="max-w-[880px] mx-auto px-6 h-14 flex items-center justify-between">
+          <Link href={ROUTES.home} className="font-semibold text-foreground tracking-tight">
             Cambridge Locals
           </Link>
-          <SignOutButton className="text-sm text-gray-500 hover:text-gray-900 transition-colors" />
+          <SignOutButton className="text-sm text-muted hover:text-foreground transition-colors" />
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Your dashboard</h1>
-          <p className="text-gray-500 mt-1 text-sm">{user.email}</p>
+      <main className="max-w-[880px] mx-auto px-6 py-12">
+        <div className="mb-8">
+          <h1 className="text-3xl font-semibold text-foreground tracking-tight">Your dashboard</h1>
+          <p className="text-muted mt-1.5 text-sm">{user.email}</p>
         </div>
 
         {expert && (
-          <div className="mb-6 p-4 rounded-lg border border-gray-200 flex items-center justify-between">
+          <div className="mb-8 p-5 rounded-2xl border border-line-soft flex items-center justify-between">
             <div>
-              <p className="font-medium text-gray-900">{formatDisplayName(expert.name)}</p>
-              <p className="text-sm text-gray-500">{expert.role}</p>
+              <p className="font-medium text-foreground">{formatDisplayName(expert.name)}</p>
+              <p className="text-sm text-muted">{expert.role}</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {expert.role === "admin" && (
                 <Link
                   href={ROUTES.adminGuides}
-                  className="text-sm text-orange-600 hover:underline"
+                  className="text-sm text-accent hover:text-accent-hover transition-colors"
                 >
                   Admin review →
                 </Link>
               )}
               <Link
                 href={ROUTES.expert(expert.slug)}
-                className="text-sm text-indigo-600 hover:underline"
+                className="text-sm text-accent hover:text-accent-hover transition-colors"
               >
                 View profile →
               </Link>
@@ -68,46 +68,46 @@ export default async function DashboardPage() {
         )}
 
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Your guides</h2>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-semibold text-foreground tracking-tight">Your guides</h2>
             <Link
               href={ROUTES.newGuide}
-              className="text-sm px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-medium"
+              className="text-sm px-4 py-2 rounded-full bg-accent text-white hover:bg-accent-hover transition-colors duration-200 font-medium"
             >
               + New guide
             </Link>
           </div>
 
           {guides.length === 0 ? (
-            <div className="py-12 text-center border border-dashed border-gray-200 rounded-lg">
-              <p className="text-gray-400 text-sm mb-3">No guides yet.</p>
+            <div className="py-14 text-center border border-dashed border-line rounded-2xl">
+              <p className="text-subtle text-sm mb-3">No guides yet.</p>
               <Link
                 href={ROUTES.newGuide}
-                className="text-sm text-indigo-600 hover:underline"
+                className="text-sm text-accent hover:underline"
               >
                 Write your first guide →
               </Link>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-line-soft">
               {guides.map((guide) => {
                 const { label, className } = statusConfig[guide.status]
                 return (
-                  <li key={guide.slug} className="py-3 flex items-center justify-between gap-4">
+                  <li key={guide.slug} className="py-4 flex items-center justify-between gap-4">
                     <div className="min-w-0">
-                      <p className="font-medium text-sm text-gray-900 truncate">{guide.title}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{guide.categoryName}</p>
+                      <p className="font-medium text-sm text-foreground truncate">{guide.title}</p>
+                      <p className="text-xs text-subtle mt-0.5">{guide.categoryName}</p>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-3 shrink-0">
                       {guide.status === "published" && (
                         <Link
                           href={ROUTES.guide(guide.slug)}
-                          className="text-xs text-indigo-600 hover:underline"
+                          className="text-xs text-accent hover:underline"
                         >
                           View
                         </Link>
                       )}
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${className}`}>
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${className}`}>
                         {label}
                       </span>
                     </div>

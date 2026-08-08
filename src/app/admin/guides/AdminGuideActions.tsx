@@ -36,12 +36,12 @@ export default function AdminGuideActions({ guideSlug, guideTitle }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 shrink-0">
       {error && <span className="text-xs text-red-600">{error}</span>}
       <button
         onClick={() => act("rejected")}
         disabled={acting !== null}
-        className="px-3 py-1 rounded-lg border border-gray-300 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+        className="px-4 py-1.5 rounded-full border border-line text-xs font-medium text-muted hover:bg-surface disabled:opacity-50 transition-colors duration-200"
         title={`Reject "${guideTitle}"`}
       >
         {acting === "rejected" ? "Rejecting…" : "Reject"}
@@ -49,7 +49,7 @@ export default function AdminGuideActions({ guideSlug, guideTitle }: Props) {
       <button
         onClick={() => act("published")}
         disabled={acting !== null}
-        className="px-3 py-1 rounded-lg bg-green-600 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
+        className="px-4 py-1.5 rounded-full bg-emerald-600 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors duration-200"
         title={`Publish "${guideTitle}"`}
       >
         {acting === "published" ? "Publishing…" : "Publish"}

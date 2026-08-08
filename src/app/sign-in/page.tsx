@@ -15,19 +15,19 @@ export default async function SignInPage({ searchParams }: Props) {
   const redirectTo = callbackUrl ?? ROUTES.dashboard
 
   return (
-    <div className="min-h-screen bg-amber-50/30 flex flex-col">
-      <header className="border-b border-gray-100 px-4 sm:px-6 h-14 flex items-center">
-        <Link href={ROUTES.home} className="font-semibold text-gray-900 tracking-tight">
+    <div className="min-h-screen bg-white flex flex-col">
+      <header className="px-6 h-16 flex items-center">
+        <Link href={ROUTES.home} className="font-semibold text-foreground tracking-tight">
           Cambridge Locals
         </Link>
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-4">
+      <main className="flex-1 flex items-center justify-center px-6 pb-20">
         <div className="w-full max-w-sm">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-            <p className="text-gray-500 text-sm mt-2">
-              Sign in to share your knowledge about Cambridge. We&apos;ll email you a sign-in link — no password needed.
+          <div className="text-center mb-10">
+            <h1 className="text-3xl font-semibold text-foreground tracking-tight mb-3">Welcome back</h1>
+            <p className="text-muted text-sm leading-relaxed">
+              Sign in to share your knowledge about Cambridge.
             </p>
           </div>
 
