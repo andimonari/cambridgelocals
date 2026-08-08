@@ -13,22 +13,22 @@ env:
   # Public — safe to expose to the browser. Firebase web API keys identify
   # the project; they don't grant access on their own.
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: REPLACE_WITH_WEB_API_KEY # Firebase console → Project settings → General → Your apps
+    value: AIzaSyBtLVW0HAJZid3JPCj9ai4DjJH_LPcxH5I
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: REPLACE_WITH_PROJECT_ID.firebaseapp.com
+    value: cambridgelocals.firebaseapp.com
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: REPLACE_WITH_PROJECT_ID
+    value: cambridgelocals
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_BASE_URL
-    value: https://REPLACE_WITH_PROJECT_ID.web.app
+    value: https://cambridgelocals.web.app
     availability:
       - BUILD
       - RUNTIME
@@ -37,8 +37,15 @@ env:
     availability:
       - RUNTIME
 
-  # Secret — set with: firebase apphosting:secrets:set auth-resend-key
+  # Optional — powers guide publish/reject email notifications (src/lib/mailer.ts).
+  # Left empty for now; without it, notification emails just log to the
+  # console instead of sending. To wire up real email later, replace this
+  # with a Secret Manager reference:
+  #   firebase apphosting:secrets:set auth-resend-key
+  #   - variable: AUTH_RESEND_KEY
+  #     secret: auth-resend-key
+  #     availability: [RUNTIME]
   - variable: AUTH_RESEND_KEY
-    secret: auth-resend-key
+    value: ""
     availability:
       - RUNTIME
