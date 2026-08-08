@@ -37,15 +37,11 @@ env:
     availability:
       - RUNTIME
 
-  # Optional — powers guide publish/reject email notifications (src/lib/mailer.ts).
-  # Left empty for now; without it, notification emails just log to the
-  # console instead of sending. To wire up real email later, replace this
-  # with a Secret Manager reference:
+  # AUTH_RESEND_KEY is intentionally omitted — it powers optional guide
+  # publish/reject email notifications (src/lib/mailer.ts), which just log
+  # to the console when the var is unset. To wire up real email later,
+  # create the secret and add it back as a secret-backed variable:
   #   firebase apphosting:secrets:set auth-resend-key
   #   - variable: AUTH_RESEND_KEY
   #     secret: auth-resend-key
   #     availability: [RUNTIME]
-  - variable: AUTH_RESEND_KEY
-    value: ""
-    availability:
-      - RUNTIME
