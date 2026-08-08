@@ -1,10 +1,11 @@
 import Image from "next/image"
 import Link from "next/link"
-import { auth, signOut } from "@/lib/auth"
+import { getCurrentUser } from "@/lib/session"
 import { ROUTES } from "@/lib/routes"
+import { SignOutButton } from "@/components/SignOutButton"
 
 export async function SiteNav() {
-  const session = await auth()
+  const user = await getCurrentUser()
 
   return (
     <header className="sticky top-0 z-10 bg-amber-50/95 backdrop-blur border-b border-stone-200">
@@ -25,7 +26,7 @@ export async function SiteNav() {
               Experts
             </a>
           </nav>
-          {session?.user ? (
+          {user ? (
             <div className="flex items-center gap-3">
               <Link
                 href={ROUTES.dashboard}
@@ -33,19 +34,7 @@ export async function SiteNav() {
               >
                 Dashboard
               </Link>
-              <form
-                action={async () => {
-                  "use server"
-                  await signOut({ redirectTo: ROUTES.home })
-                }}
-              >
-                <button
-                  type="submit"
-                  className="text-sm text-stone-500 hover:text-stone-900 transition-colors"
-                >
-                  Sign out
-                </button>
-              </form>
+              <SignOutButton className="text-sm text-stone-500 hover:text-stone-900 transition-colors" />
             </div>
           ) : (
             <Link

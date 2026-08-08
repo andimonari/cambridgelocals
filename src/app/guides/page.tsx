@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import type { Metadata } from "next"
-import { db } from "@/lib/db"
+import { getCategories, getLocations, getPublishedGuides } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import { SiteNav } from "@/components/SiteNav"
 import { formatDisplayName } from "@/lib/display-name"
@@ -32,17 +32,9 @@ export default async function GuidesPage({ searchParams }: Props) {
   const { category, location } = await searchParams
 
   const [guides, categories, locations] = await Promise.all([
-    db.guide.findMany({
-      where: {
-        publishedAt: { not: null },
-        ...(category ? { category: { slug: category } } : {}),
-        ...(location ? { location: { slug: location } } : {}),
-      },
-      orderBy: { publishedAt: "desc" },
-      include: { author: true, category: true, location: true },
-    }),
-    db.category.findMany({ orderBy: { name: "asc" } }),
-    db.location.findMany({ orderBy: { name: "asc" } }),
+    getPublishedGuides({ categorySlug: category, locationSlug: location }),
+    getCategories(),
+    getLocations(),
   ])
 
   return (
@@ -89,7 +81,7 @@ export default async function GuidesPage({ searchParams }: Props) {
             </Link>
             {categories.map((cat) => (
               <Link
-                key={cat.id}
+                key={cat.slug}
                 href={buildFilterUrl(ROUTES.guides, cat.slug, location)}
                 className={`px-3 py-1 rounded-full text-sm border transition-colors ${
                   category === cat.slug
@@ -120,7 +112,7 @@ export default async function GuidesPage({ searchParams }: Props) {
               </Link>
               {locations.map((loc) => (
                 <Link
-                  key={loc.id}
+                  key={loc.slug}
                   href={buildFilterUrl(ROUTES.guides, category, loc.slug)}
                   className={`px-3 py-1 rounded-full text-sm border transition-colors ${
                     location === loc.slug
@@ -148,16 +140,16 @@ export default async function GuidesPage({ searchParams }: Props) {
         ) : (
           <ul className="divide-y divide-gray-100">
             {guides.map((guide) => {
-              const initials = guide.author.name.trim().split(/\s+/)[0]?.[0]?.toUpperCase() ?? ""
+              const initials = guide.authorName.trim().split(/\s+/)[0]?.[0]?.toUpperCase() ?? ""
 
               return (
-                <li key={guide.id} className="py-6">
+                <li key={guide.slug} className="py-6">
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-xs font-semibold text-indigo-600">{guide.category.name}</span>
-                    {guide.location && (
+                    <span className="text-xs font-semibold text-indigo-600">{guide.categoryName}</span>
+                    {guide.locationName && (
                       <>
                         <span className="text-gray-300" aria-hidden>·</span>
-                        <span className="text-xs text-gray-400">{guide.location.name}</span>
+                        <span className="text-xs text-gray-400">{guide.locationName}</span>
                       </>
                     )}
                   </div>
@@ -180,10 +172,10 @@ export default async function GuidesPage({ searchParams }: Props) {
                       {initials}
                     </div>
                     <Link
-                      href={ROUTES.expert(guide.author.slug)}
+                      href={ROUTES.expert(guide.authorSlug)}
                       className="text-xs text-gray-500 hover:text-gray-900 transition-colors"
                     >
-                      {formatDisplayName(guide.author.name)}
+                      {formatDisplayName(guide.authorName)}
                     </Link>
                     {guide.publishedAt && (
                       <>

@@ -1,19 +1,14 @@
 import type { MetadataRoute } from "next"
-import { db } from "@/lib/db"
+import { getAllExpertSlugsForSitemap, getAllGuideSlugsForSitemap } from "@/lib/db"
 
 export const dynamic = "force-dynamic"
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgelocals.com"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [guides, experts] = await Promise.all([
-    db.guide.findMany({
-      where: { publishedAt: { not: null } },
-      select: { slug: true, publishedAt: true },
-    }),
-    db.expert.findMany({
-      select: { slug: true },
-    }),
+  const [guides, expertSlugs] = await Promise.all([
+    getAllGuideSlugsForSitemap(),
+    getAllExpertSlugsForSitemap(),
   ])
 
   return [
@@ -35,8 +30,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.8,
     })),
-    ...experts.map((expert) => ({
-      url: `${baseUrl}/experts/${expert.slug}`,
+    ...expertSlugs.map((slug) => ({
+      url: `${baseUrl}/experts/${slug}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.7,

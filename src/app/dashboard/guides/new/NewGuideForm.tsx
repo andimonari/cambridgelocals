@@ -4,8 +4,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ROUTES } from "@/lib/routes"
 
-type Category = { id: string; name: string }
-type Location = { id: string; name: string }
+type Category = { slug: string; name: string }
+type Location = { slug: string; name: string }
 
 type Props = {
   categories: Category[]
@@ -15,8 +15,8 @@ type Props = {
 export default function NewGuideForm({ categories, locations }: Props) {
   const router = useRouter()
   const [title, setTitle] = useState("")
-  const [categoryId, setCategoryId] = useState(categories[0]?.id ?? "")
-  const [locationId, setLocationId] = useState("")
+  const [categorySlug, setCategorySlug] = useState(categories[0]?.slug ?? "")
+  const [locationSlug, setLocationSlug] = useState("")
   const [body, setBody] = useState("")
   const [preview, setPreview] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -25,7 +25,7 @@ export default function NewGuideForm({ categories, locations }: Props) {
   async function handleSubmit(status: "draft" | "submitted") {
     setError(null)
     if (!title.trim()) { setError("Title is required."); return }
-    if (!categoryId) { setError("Please select a category."); return }
+    if (!categorySlug) { setError("Please select a category."); return }
     if (!body.trim()) { setError("Guide body is required."); return }
 
     setSubmitting(status)
@@ -35,8 +35,8 @@ export default function NewGuideForm({ categories, locations }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
-          categoryId,
-          locationId: locationId || undefined,
+          categorySlug,
+          locationSlug: locationSlug || undefined,
           body: body.trim(),
           status,
         }),
@@ -78,13 +78,13 @@ export default function NewGuideForm({ categories, locations }: Props) {
           </label>
           <select
             id="category"
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
+            value={categorySlug}
+            onChange={(e) => setCategorySlug(e.target.value)}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             {categories.length === 0 && <option value="">No categories available</option>}
             {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
+              <option key={c.slug} value={c.slug}>{c.name}</option>
             ))}
           </select>
         </div>
@@ -95,13 +95,13 @@ export default function NewGuideForm({ categories, locations }: Props) {
           </label>
           <select
             id="location"
-            value={locationId}
-            onChange={(e) => setLocationId(e.target.value)}
+            value={locationSlug}
+            onChange={(e) => setLocationSlug(e.target.value)}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="">Any / Cambridge-wide</option>
             {locations.map((l) => (
-              <option key={l.id} value={l.id}>{l.name}</option>
+              <option key={l.slug} value={l.slug}>{l.name}</option>
             ))}
           </select>
         </div>

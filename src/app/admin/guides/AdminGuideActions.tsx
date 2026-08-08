@@ -4,11 +4,11 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 
 type Props = {
-  guideId: string
+  guideSlug: string
   guideTitle: string
 }
 
-export default function AdminGuideActions({ guideId, guideTitle }: Props) {
+export default function AdminGuideActions({ guideSlug, guideTitle }: Props) {
   const router = useRouter()
   const [acting, setActing] = useState<"published" | "rejected" | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -17,7 +17,7 @@ export default function AdminGuideActions({ guideId, guideTitle }: Props) {
     setError(null)
     setActing(status)
     try {
-      const res = await fetch(`/api/guides/${guideId}`, {
+      const res = await fetch(`/api/guides/${guideSlug}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

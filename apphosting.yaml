@@ -1,0 +1,44 @@
+# Firebase App Hosting build & runtime config.
+# Docs: https://firebase.google.com/docs/app-hosting/configure
+#
+# FIREBASE_PROJECT_ID / server-side Firestore & Auth access don't need a
+# value here: App Hosting backends run with Application Default Credentials
+# for their own project, which firebase-admin picks up automatically.
+
+runConfig:
+  minInstances: 0
+  maxInstances: 1
+
+env:
+  # Public — safe to expose to the browser. Firebase web API keys identify
+  # the project; they don't grant access on their own.
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: REPLACE_WITH_WEB_API_KEY # Firebase console → Project settings → General → Your apps
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: REPLACE_WITH_PROJECT_ID.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: REPLACE_WITH_PROJECT_ID
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_BASE_URL
+    value: https://REPLACE_WITH_PROJECT_ID.web.app
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: AUTH_EMAIL_FROM
+    value: "Cambridge Locals <noreply@cambridgelocals.com>"
+    availability:
+      - RUNTIME
+
+  # Secret — set with: firebase apphosting:secrets:set auth-resend-key
+  - variable: AUTH_RESEND_KEY
+    secret: auth-resend-key
+    availability:
+      - RUNTIME

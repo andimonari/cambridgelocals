@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { db } from "@/lib/db"
+import { getExpertBySlug, getPublishedGuidesByAuthor, getReviewsForExpert } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import type { Metadata } from "next"
 import { formatDisplayName } from "@/lib/display-name"
@@ -14,7 +14,7 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgelocals
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const expert = await db.expert.findUnique({ where: { slug } })
+  const expert = await getExpertBySlug(slug)
   if (!expert) return {}
   const displayName = formatDisplayName(expert.name)
   const description = expert.bio ?? `${displayName} shares local Cambridge insights.`
@@ -39,20 +39,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ExpertProfilePage({ params }: Props) {
   const { slug } = await params
-  const expert = await db.expert.findUnique({
-    where: { slug },
-    include: {
-      location: true,
-      guides: {
-        where: { publishedAt: { not: null } },
-        orderBy: { publishedAt: "desc" },
-        include: { category: true },
-      },
-      reviews: { orderBy: { createdAt: "desc" } },
-    },
-  })
-
+  const expert = await getExpertBySlug(slug)
   if (!expert) notFound()
+
+  const [guides, reviews] = await Promise.all([
+    getPublishedGuidesByAuthor(expert.slug),
+    getReviewsForExpert(expert.slug),
+  ])
 
   const initials = expert.name.trim().split(/\s+/)[0]?.[0]?.toUpperCase() ?? ""
   const displayName = formatDisplayName(expert.name)
@@ -64,7 +57,7 @@ export default async function ExpertProfilePage({ params }: Props) {
     description: expert.bio ?? undefined,
     jobTitle: expert.role,
     url: `${baseUrl}/experts/${expert.slug}`,
-    ...(expert.location ? { address: { "@type": "Place", name: `${expert.location.name}, Cambridge` } } : {}),
+    ...(expert.locationName ? { address: { "@type": "Place", name: `${expert.locationName}, Cambridge` } } : {}),
   }
 
   return (
@@ -84,8 +77,8 @@ export default async function ExpertProfilePage({ params }: Props) {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
             <p className="text-gray-500 mt-1">{expert.role}</p>
-            {expert.location && (
-              <p className="text-sm text-indigo-600 mt-1">{expert.location.name}, Cambridge</p>
+            {expert.locationName && (
+              <p className="text-sm text-indigo-600 mt-1">{expert.locationName}, Cambridge</p>
             )}
           </div>
         </div>
@@ -97,14 +90,14 @@ export default async function ExpertProfilePage({ params }: Props) {
         )}
 
         {/* Expert reviews */}
-        {expert.reviews.length > 0 && (
+        {reviews.length > 0 && (
           <section className="mb-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Reviews
-              <span className="ml-2 text-sm font-normal text-gray-400">({expert.reviews.length})</span>
+              <span className="ml-2 text-sm font-normal text-gray-400">({reviews.length})</span>
             </h2>
             <ul className="space-y-4">
-              {expert.reviews.map((review) => (
+              {reviews.map((review) => (
                 <li key={review.id} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="font-medium text-gray-800 text-sm">{review.authorName}</span>
@@ -122,16 +115,16 @@ export default async function ExpertProfilePage({ params }: Props) {
         {/* Guides */}
         <section>
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Guides</h2>
-          {expert.guides.length === 0 ? (
+          {guides.length === 0 ? (
             <p className="text-gray-400 text-sm py-8 text-center border border-dashed border-gray-200 rounded-lg">
               No published guides yet — check back soon.
             </p>
           ) : (
             <ul className="divide-y divide-gray-100">
-              {expert.guides.map((guide) => (
-                <li key={guide.id} className="py-4">
+              {guides.map((guide) => (
+                <li key={guide.slug} className="py-4">
                   <p className="text-xs text-indigo-600 font-medium mb-1">
-                    {guide.category.name}
+                    {guide.categoryName}
                   </p>
                   <Link
                     href={ROUTES.guide(guide.slug)}

@@ -1,7 +1,7 @@
-import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { db } from "@/lib/db"
+import { getCurrentUser } from "@/lib/session"
+import { getExpertByUserId, getSubmittedGuides } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import AdminGuideActions from "./AdminGuideActions"
 import { formatDisplayName } from "@/lib/display-name"
@@ -11,23 +11,15 @@ export const metadata = {
 }
 
 export default async function AdminGuidesPage() {
-  const session = await auth()
-  if (!session?.user) redirect(ROUTES.signIn)
+  const user = await getCurrentUser()
+  if (!user) redirect(ROUTES.signIn)
 
-  const expert = await db.expert.findFirst({ where: { userId: session.user.id } })
+  const expert = await getExpertByUserId(user.uid)
   if (!expert || expert.role !== "admin") {
     redirect(ROUTES.dashboard)
   }
 
-  const submitted = await db.guide.findMany({
-    where: { status: "submitted" },
-    orderBy: { createdAt: "asc" },
-    include: {
-      author: true,
-      category: true,
-      location: true,
-    },
-  })
+  const submitted = await getSubmittedGuides()
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -58,23 +50,23 @@ export default async function AdminGuidesPage() {
         ) : (
           <ul className="space-y-4">
             {submitted.map((guide) => (
-              <li key={guide.id} className="border border-gray-200 rounded-lg p-5">
+              <li key={guide.slug} className="border border-gray-200 rounded-lg p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <h2 className="font-semibold text-gray-900 text-base truncate">{guide.title}</h2>
                     <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                      <span>by {formatDisplayName(guide.author.name)}</span>
+                      <span>by {formatDisplayName(guide.authorName)}</span>
                       <span>·</span>
-                      <span>{guide.category.name}</span>
-                      {guide.location && (
+                      <span>{guide.categoryName}</span>
+                      {guide.locationName && (
                         <>
                           <span>·</span>
-                          <span>{guide.location.name}</span>
+                          <span>{guide.locationName}</span>
                         </>
                       )}
                       <span>·</span>
                       <span>
-                        {new Date(guide.createdAt).toLocaleDateString("en-GB", {
+                        {guide.createdAt.toLocaleDateString("en-GB", {
                           day: "numeric",
                           month: "short",
                           year: "numeric",
@@ -82,7 +74,7 @@ export default async function AdminGuidesPage() {
                       </span>
                     </div>
                   </div>
-                  <AdminGuideActions guideId={guide.id} guideTitle={guide.title} />
+                  <AdminGuideActions guideSlug={guide.slug} guideTitle={guide.title} />
                 </div>
 
                 <div className="mt-4 text-sm text-gray-700 border-t border-gray-100 pt-4 whitespace-pre-wrap line-clamp-6">

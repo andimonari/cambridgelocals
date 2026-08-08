@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { db } from "@/lib/db"
+import { getFeaturedExperts, getPublishedGuidesByAuthor } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import { SiteNav } from "@/components/SiteNav"
 import { formatDisplayName } from "@/lib/display-name"
@@ -33,18 +33,13 @@ const valueProps = [
 ]
 
 export default async function HomePage() {
-  const experts = await db.expert.findMany({
-    take: 3,
-    orderBy: { createdAt: "asc" },
-    include: {
-      guides: {
-        where: { publishedAt: { not: null } },
-        orderBy: { publishedAt: "desc" },
-        take: 3,
-        include: { category: true },
-      },
-    },
-  })
+  const featuredExperts = await getFeaturedExperts(3)
+  const experts = await Promise.all(
+    featuredExperts.map(async (expert) => ({
+      ...expert,
+      guides: await getPublishedGuidesByAuthor(expert.slug, 3),
+    }))
+  )
 
   return (
     <div className="min-h-screen bg-amber-50/30 text-gray-900">
@@ -200,7 +195,7 @@ export default async function HomePage() {
 
                   return (
                     <Link
-                      key={expert.id}
+                      key={expert.slug}
                       href={ROUTES.expert(expert.slug)}
                       className="bg-white rounded-xl border border-stone-200 p-6 flex flex-col gap-4 hover:border-sky-200 hover:shadow-sm transition-all"
                     >
@@ -216,7 +211,7 @@ export default async function HomePage() {
                       {expert.guides.length > 0 ? (
                         <ul className="space-y-1.5">
                           {expert.guides.map((guide) => (
-                            <li key={guide.id} className="flex items-start gap-2 text-sm text-stone-600">
+                            <li key={guide.slug} className="flex items-start gap-2 text-sm text-stone-600">
                               <span className="text-sky-500 mt-0.5 shrink-0">→</span>
                               {guide.title}
                             </li>

@@ -1,10 +1,11 @@
-import { auth, signOut } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { db } from "@/lib/db"
+import { getCurrentUser } from "@/lib/session"
+import { getExpertByUserId, getGuidesByAuthor } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
-import { GuideStatus } from "@/generated/prisma/client"
+import type { GuideStatus } from "@/types/firestore"
 import { formatDisplayName } from "@/lib/display-name"
+import { SignOutButton } from "@/components/SignOutButton"
 
 export const metadata = {
   title: "Dashboard — Cambridge Locals",
@@ -18,18 +19,11 @@ const statusConfig: Record<GuideStatus, { label: string; className: string }> = 
 }
 
 export default async function DashboardPage() {
-  const session = await auth()
-  if (!session?.user) redirect(ROUTES.signIn)
+  const user = await getCurrentUser()
+  if (!user) redirect(ROUTES.signIn)
 
-  const expert = await db.expert.findFirst({
-    where: { userId: session.user.id },
-    include: {
-      guides: {
-        orderBy: { createdAt: "desc" },
-        include: { category: true },
-      },
-    },
-  })
+  const expert = await getExpertByUserId(user.uid)
+  const guides = expert ? await getGuidesByAuthor(expert.slug) : []
 
   return (
     <div className="min-h-screen bg-amber-50/30 text-gray-900">
@@ -38,26 +32,14 @@ export default async function DashboardPage() {
           <Link href={ROUTES.home} className="font-semibold text-gray-900 tracking-tight">
             Cambridge Locals
           </Link>
-          <form
-            action={async () => {
-              "use server"
-              await signOut({ redirectTo: ROUTES.home })
-            }}
-          >
-            <button
-              type="submit"
-              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
-            >
-              Sign out
-            </button>
-          </form>
+          <SignOutButton className="text-sm text-gray-500 hover:text-gray-900 transition-colors" />
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Your dashboard</h1>
-          <p className="text-gray-500 mt-1 text-sm">{session.user.email}</p>
+          <p className="text-gray-500 mt-1 text-sm">{user.email}</p>
         </div>
 
         {expert && (
@@ -96,7 +78,7 @@ export default async function DashboardPage() {
             </Link>
           </div>
 
-          {!expert || expert.guides.length === 0 ? (
+          {guides.length === 0 ? (
             <div className="py-12 text-center border border-dashed border-gray-200 rounded-lg">
               <p className="text-gray-400 text-sm mb-3">No guides yet.</p>
               <Link
@@ -108,13 +90,13 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <ul className="divide-y divide-gray-100">
-              {expert.guides.map((guide) => {
+              {guides.map((guide) => {
                 const { label, className } = statusConfig[guide.status]
                 return (
-                  <li key={guide.id} className="py-3 flex items-center justify-between gap-4">
+                  <li key={guide.slug} className="py-3 flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <p className="font-medium text-sm text-gray-900 truncate">{guide.title}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{guide.category.name}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{guide.categoryName}</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {guide.status === "published" && (

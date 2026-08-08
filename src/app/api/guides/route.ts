@@ -1,60 +1,44 @@
-import { auth } from "@/lib/auth"
-import { db } from "@/lib/db"
-import { GuideStatus } from "@/generated/prisma/client"
-
-function toSlug(str: string): string {
-  return str
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 80)
-}
+import { getCurrentUser } from "@/lib/session"
+import { createGuide, getExpertByUserId } from "@/lib/db"
+import type { GuideStatus } from "@/types/firestore"
 
 export async function POST(request: Request) {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const user = await getCurrentUser()
+  if (!user) {
     return Response.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const expert = await db.expert.findFirst({
-    where: { userId: session.user.id },
-  })
+  const expert = await getExpertByUserId(user.uid)
   if (!expert) {
     return Response.json({ error: "No expert profile found" }, { status: 403 })
   }
 
   const body = await request.json()
-  const { title, categoryId, locationId, body: guideBody, status } = body
+  const { title, categorySlug, locationSlug, body: guideBody, status } = body
 
-  if (!title || !categoryId || !guideBody) {
-    return Response.json({ error: "title, categoryId, and body are required" }, { status: 400 })
+  if (!title || !categorySlug || !guideBody) {
+    return Response.json({ error: "title, categorySlug, and body are required" }, { status: 400 })
   }
 
-  const requestedStatus: GuideStatus =
-    status === "submitted" ? GuideStatus.submitted : GuideStatus.draft
+  const requestedStatus: Extract<GuideStatus, "draft" | "submitted"> =
+    status === "submitted" ? "submitted" : "draft"
 
-  const baseSlug = toSlug(title)
-  let slug = baseSlug
-  let suffix = 1
-  while (await db.guide.findUnique({ where: { slug } })) {
-    slug = `${baseSlug}-${suffix++}`
-  }
-
-  const guide = await db.guide.create({
-    data: {
+  let guide
+  try {
+    guide = await createGuide({
       title,
-      slug,
       body: guideBody,
+      categorySlug,
+      locationSlug: locationSlug ?? null,
       status: requestedStatus,
-      authorId: expert.id,
-      categoryId,
-      locationId: locationId ?? null,
-    },
-    include: { category: true, location: true },
-  })
+      author: expert,
+    })
+  } catch {
+    return Response.json({ error: "Unknown category or location" }, { status: 400 })
+  }
 
-  if (requestedStatus === GuideStatus.submitted) {
-    console.log(`[guides] Guide submitted for review: "${guide.title}" (id=${guide.id}) by expert ${expert.name}`)
+  if (requestedStatus === "submitted") {
+    console.log(`[guides] Guide submitted for review: "${guide.title}" (slug=${guide.slug}) by expert ${expert.name}`)
   }
 
   return Response.json(guide, { status: 201 })

@@ -1,6 +1,6 @@
-import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { db } from "@/lib/db"
+import { getCurrentUser } from "@/lib/session"
+import { getCategories, getExpertByUserId, getLocations } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import NewGuideForm from "./NewGuideForm"
 
@@ -9,16 +9,13 @@ export const metadata = {
 }
 
 export default async function NewGuidePage() {
-  const session = await auth()
-  if (!session?.user) redirect(ROUTES.signIn)
+  const user = await getCurrentUser()
+  if (!user) redirect(ROUTES.signIn)
 
-  const expert = await db.expert.findFirst({ where: { userId: session.user.id } })
+  const expert = await getExpertByUserId(user.uid)
   if (!expert) redirect(ROUTES.dashboard)
 
-  const [categories, locations] = await Promise.all([
-    db.category.findMany({ orderBy: { name: "asc" } }),
-    db.location.findMany({ orderBy: { name: "asc" } }),
-  ])
+  const [categories, locations] = await Promise.all([getCategories(), getLocations()])
 
   return (
     <div className="min-h-screen bg-white text-gray-900">

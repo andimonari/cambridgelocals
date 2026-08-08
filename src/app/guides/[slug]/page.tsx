@@ -2,11 +2,12 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import type { Metadata } from "next"
-import { db } from "@/lib/db"
+import { getGuideBySlug, getReviewsForGuide } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import { SiteNav } from "@/components/SiteNav"
 import { renderMarkdown } from "@/lib/markdown"
 import { formatDisplayName } from "@/lib/display-name"
+import ReviewForm from "./ReviewForm"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -16,10 +17,7 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgelocals
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const guide = await db.guide.findUnique({
-    where: { slug },
-    include: { author: true },
-  })
+  const guide = await getGuideBySlug(slug, { publishedOnly: true })
   if (!guide) return {}
   const description = guide.body.replace(/[#*>`_\-\[\]]/g, "").trim().slice(0, 160)
   const canonicalUrl = `${baseUrl}/guides/${slug}`
@@ -32,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: guide.title,
       description,
       url: canonicalUrl,
-      authors: [formatDisplayName(guide.author.name)],
+      authors: [formatDisplayName(guide.authorName)],
       publishedTime: guide.publishedAt?.toISOString(),
     },
     twitter: {
@@ -45,19 +43,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function GuideDetailPage({ params }: Props) {
   const { slug } = await params
-  const guide = await db.guide.findUnique({
-    where: { slug, publishedAt: { not: null } },
-    include: {
-      author: { include: { location: true } },
-      category: true,
-      location: true,
-      reviews: { orderBy: { createdAt: "desc" } },
-    },
-  })
-
+  const guide = await getGuideBySlug(slug, { publishedOnly: true })
   if (!guide) notFound()
 
-  const initials = guide.author.name.trim().split(/\s+/)[0]?.[0]?.toUpperCase() ?? ""
+  const reviews = await getReviewsForGuide(guide.slug)
+
+  const initials = guide.authorName.trim().split(/\s+/)[0]?.[0]?.toUpperCase() ?? ""
 
   const bodyHtml = renderMarkdown(guide.body)
 
@@ -68,8 +59,8 @@ export default async function GuideDetailPage({ params }: Props) {
     description: guide.body.replace(/[#*>`_\-\[\]]/g, "").trim().slice(0, 160),
     author: {
       "@type": "Person",
-      name: formatDisplayName(guide.author.name),
-      url: `${baseUrl}/experts/${guide.author.slug}`,
+      name: formatDisplayName(guide.authorName),
+      url: `${baseUrl}/experts/${guide.authorSlug}`,
     },
     datePublished: guide.publishedAt?.toISOString(),
     url: `${baseUrl}/guides/${guide.slug}`,
@@ -112,17 +103,17 @@ export default async function GuideDetailPage({ params }: Props) {
         {/* Category + location tags */}
         <div className="flex items-center gap-2 mb-4 flex-wrap">
           <Link
-            href={`${ROUTES.guides}?category=${guide.category.slug}`}
+            href={`${ROUTES.guides}?category=${guide.categorySlug}`}
             className="text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded transition-colors"
           >
-            {guide.category.name}
+            {guide.categoryName}
           </Link>
-          {guide.location && (
+          {guide.locationSlug && (
             <Link
-              href={`${ROUTES.guides}?location=${guide.location.slug}`}
+              href={`${ROUTES.guides}?location=${guide.locationSlug}`}
               className="text-xs text-gray-500 bg-gray-100 hover:bg-gray-200 px-2 py-0.5 rounded transition-colors"
             >
-              {guide.location.name}
+              {guide.locationName}
             </Link>
           )}
         </div>
@@ -142,12 +133,12 @@ export default async function GuideDetailPage({ params }: Props) {
           </div>
           <div>
             <Link
-              href={ROUTES.expert(guide.author.slug)}
+              href={ROUTES.expert(guide.authorSlug)}
               className="font-medium text-gray-900 hover:text-indigo-600 transition-colors text-sm"
             >
-              {formatDisplayName(guide.author.name)}
+              {formatDisplayName(guide.authorName)}
             </Link>
-            <p className="text-xs text-gray-400 mt-0.5">{guide.author.role}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{guide.authorRole}</p>
           </div>
           {guide.publishedAt && (
             <time
@@ -170,14 +161,17 @@ export default async function GuideDetailPage({ params }: Props) {
         />
 
         {/* Reviews */}
-        {guide.reviews.length > 0 && (
-          <section className="mt-12 pt-8 border-t border-gray-100">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Reader reviews
-              <span className="ml-2 text-sm font-normal text-gray-400">({guide.reviews.length})</span>
-            </h2>
-            <ul className="space-y-6">
-              {guide.reviews.map((review) => (
+        <section className="mt-12 pt-8 border-t border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Reader reviews
+            {reviews.length > 0 && (
+              <span className="ml-2 text-sm font-normal text-gray-400">({reviews.length})</span>
+            )}
+          </h2>
+
+          {reviews.length > 0 && (
+            <ul className="space-y-6 mb-6">
+              {reviews.map((review) => (
                 <li key={review.id} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium text-gray-800 text-sm">{review.authorName}</span>
@@ -189,8 +183,10 @@ export default async function GuideDetailPage({ params }: Props) {
                 </li>
               ))}
             </ul>
-          </section>
-        )}
+          )}
+
+          <ReviewForm guideSlug={guide.slug} />
+        </section>
 
         {/* Back link */}
         <div className="mt-12 pt-8 border-t border-gray-100">
