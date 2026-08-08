@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { db } from "@/lib/db"
+import { getExpertBySlug, getPublishedGuidesByAuthor, getReviewsForExpert } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import type { Metadata } from "next"
 import { formatDisplayName } from "@/lib/display-name"
@@ -14,7 +14,7 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgelocals
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const expert = await db.expert.findUnique({ where: { slug } })
+  const expert = await getExpertBySlug(slug)
   if (!expert) return {}
   const displayName = formatDisplayName(expert.name)
   const description = expert.bio ?? `${displayName} shares local Cambridge insights.`
@@ -39,20 +39,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ExpertProfilePage({ params }: Props) {
   const { slug } = await params
-  const expert = await db.expert.findUnique({
-    where: { slug },
-    include: {
-      location: true,
-      guides: {
-        where: { publishedAt: { not: null } },
-        orderBy: { publishedAt: "desc" },
-        include: { category: true },
-      },
-      reviews: { orderBy: { createdAt: "desc" } },
-    },
-  })
-
+  const expert = await getExpertBySlug(slug)
   if (!expert) notFound()
+
+  const [guides, reviews] = await Promise.all([
+    getPublishedGuidesByAuthor(expert.slug),
+    getReviewsForExpert(expert.slug),
+  ])
 
   const initials = expert.name.trim().split(/\s+/)[0]?.[0]?.toUpperCase() ?? ""
   const displayName = formatDisplayName(expert.name)
@@ -64,55 +57,55 @@ export default async function ExpertProfilePage({ params }: Props) {
     description: expert.bio ?? undefined,
     jobTitle: expert.role,
     url: `${baseUrl}/experts/${expert.slug}`,
-    ...(expert.location ? { address: { "@type": "Place", name: `${expert.location.name}, Cambridge` } } : {}),
+    ...(expert.locationName ? { address: { "@type": "Place", name: `${expert.locationName}, Cambridge` } } : {}),
   }
 
   return (
-    <div className="min-h-screen bg-amber-50/30 text-gray-900">
+    <div className="min-h-screen bg-white text-foreground">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <SiteNav />
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-[720px] mx-auto px-6 py-12">
         {/* Profile header */}
-        <div className="flex items-start gap-5 mb-6">
-          <div className="w-16 h-16 rounded-full bg-indigo-100 text-indigo-700 font-semibold text-xl flex items-center justify-center shrink-0">
+        <div className="flex items-start gap-5 mb-7">
+          <div className="w-16 h-16 rounded-full bg-accent/10 text-accent font-semibold text-xl flex items-center justify-center shrink-0">
             {initials}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
-            <p className="text-gray-500 mt-1">{expert.role}</p>
-            {expert.location && (
-              <p className="text-sm text-indigo-600 mt-1">{expert.location.name}, Cambridge</p>
+            <h1 className="text-3xl font-semibold text-foreground tracking-tight">{displayName}</h1>
+            <p className="text-muted mt-1">{expert.role}</p>
+            {expert.locationName && (
+              <p className="text-sm text-accent mt-1">{expert.locationName}, Cambridge</p>
             )}
           </div>
         </div>
 
         {expert.bio && (
-          <p className="text-gray-600 leading-relaxed mb-6 border-l-2 border-indigo-100 pl-4">
+          <p className="text-muted leading-relaxed mb-8 border-l-2 border-accent/25 pl-5">
             {expert.bio}
           </p>
         )}
 
         {/* Expert reviews */}
-        {expert.reviews.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        {reviews.length > 0 && (
+          <section className="mb-10">
+            <h2 className="text-xl font-semibold text-foreground tracking-tight mb-5">
               Reviews
-              <span className="ml-2 text-sm font-normal text-gray-400">({expert.reviews.length})</span>
+              <span className="ml-2 text-sm font-normal text-subtle">({reviews.length})</span>
             </h2>
-            <ul className="space-y-4">
-              {expert.reviews.map((review) => (
-                <li key={review.id} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+            <ul className="space-y-3">
+              {reviews.map((review) => (
+                <li key={review.id} className="bg-surface rounded-2xl p-5">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="font-medium text-gray-800 text-sm">{review.authorName}</span>
+                    <span className="font-medium text-foreground text-sm">{review.authorName}</span>
                     <span className="text-amber-400 tracking-tight" aria-label={`${review.rating} out of 5 stars`}>
                       {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
                     </span>
                   </div>
-                  <p className="text-gray-600 text-sm leading-relaxed">{review.body}</p>
+                  <p className="text-muted text-sm leading-relaxed">{review.body}</p>
                 </li>
               ))}
             </ul>
@@ -121,26 +114,26 @@ export default async function ExpertProfilePage({ params }: Props) {
 
         {/* Guides */}
         <section>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Guides</h2>
-          {expert.guides.length === 0 ? (
-            <p className="text-gray-400 text-sm py-8 text-center border border-dashed border-gray-200 rounded-lg">
+          <h2 className="text-xl font-semibold text-foreground tracking-tight mb-5">Guides</h2>
+          {guides.length === 0 ? (
+            <p className="text-subtle text-sm py-10 text-center border border-dashed border-line rounded-2xl">
               No published guides yet — check back soon.
             </p>
           ) : (
-            <ul className="divide-y divide-gray-100">
-              {expert.guides.map((guide) => (
-                <li key={guide.id} className="py-4">
-                  <p className="text-xs text-indigo-600 font-medium mb-1">
-                    {guide.category.name}
+            <ul className="divide-y divide-line-soft">
+              {guides.map((guide) => (
+                <li key={guide.slug} className="py-5">
+                  <p className="text-xs text-accent font-medium mb-1">
+                    {guide.categoryName}
                   </p>
                   <Link
                     href={ROUTES.guide(guide.slug)}
-                    className="font-medium text-gray-900 hover:text-indigo-600 transition-colors"
+                    className="font-medium text-foreground hover:text-accent transition-colors"
                   >
                     {guide.title}
                   </Link>
                   {guide.publishedAt && (
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-subtle mt-1">
                       {new Date(guide.publishedAt).toLocaleDateString("en-GB", {
                         day: "numeric",
                         month: "long",

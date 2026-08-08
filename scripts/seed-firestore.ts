@@ -1,8 +1,124 @@
-import { PrismaClient } from "../src/generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+/**
+ * Seeds Firestore with locations, categories, the family experts, guides,
+ * and reviews. Run with `npm run db:seed` after configuring Firebase
+ * credentials (see .env.example) — talks to the emulator automatically if
+ * FIRESTORE_EMULATOR_HOST is set.
+ *
+ * Implementation note: this mirrors the app's Firestore document shape
+ * (slugs as document IDs, denormalized author/category/location display
+ * fields on Guide — see src/lib/db.ts and src/types/firestore.ts) via a
+ * small collection shim below, so the actual seed content — every guide
+ * body and review — reads as plain data rather than Firestore boilerplate.
+ */
+import { adminDb } from "../src/lib/firebase-admin"
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
-const db = new PrismaClient({ adapter });
+type Json = Record<string, unknown>
+
+const locationsCol = adminDb.collection("locations")
+const categoriesCol = adminDb.collection("categories")
+const expertsCol = adminDb.collection("experts")
+const guidesCol = adminDb.collection("guides")
+const reviewsCol = adminDb.collection("reviews")
+
+function simpleCollection(col: FirebaseFirestore.CollectionReference) {
+  return {
+    async upsert({ where, update, create }: { where: { slug: string }; update: Json; create: Json }) {
+      const ref = col.doc(where.slug)
+      const snap = await ref.get()
+      const data = snap.exists ? { ...snap.data(), ...update } : create
+      await ref.set(data)
+      return { id: ref.id, slug: ref.id, ...data }
+    },
+  }
+}
+
+const db = {
+  location: simpleCollection(locationsCol),
+  category: simpleCollection(categoriesCol),
+
+  expert: {
+    async upsert({ where, update, create }: { where: { slug: string }; update: Json; create?: Json }) {
+      const ref = expertsCol.doc(where.slug)
+      const snap = await ref.get()
+
+      const locationSlug = (update.locationSlug ?? create?.locationSlug ?? null) as string | null
+      let locationName: string | null = null
+      if (locationSlug) {
+        const locSnap = await locationsCol.doc(locationSlug).get()
+        locationName = locSnap.exists ? (locSnap.data()!.name as string) : null
+      }
+
+      const base = snap.exists
+        ? snap.data()!
+        : { ...create, locationSlug, locationName, userId: null, createdAt: new Date() }
+      const merged = { ...base, ...update }
+      await ref.set(merged)
+      return { id: ref.id, slug: ref.id, ...merged }
+    },
+    async findUnique({ where }: { where: { slug: string } }) {
+      const snap = await expertsCol.doc(where.slug).get()
+      return snap.exists ? { id: snap.id, slug: snap.id, ...snap.data() } : null
+    },
+  },
+
+  guide: {
+    async upsert({ where, update, create }: { where: { slug: string }; update: Json; create?: Json }) {
+      const ref = guidesCol.doc(where.slug)
+      const snap = await ref.get()
+
+      async function withDenormalizedFields(source: Json): Promise<Json> {
+        const resolved: Json = { ...source }
+        if (source.authorSlug) {
+          const a = await expertsCol.doc(source.authorSlug as string).get()
+          resolved.authorName = a.data()?.name ?? null
+          resolved.authorRole = a.data()?.role ?? null
+        }
+        if (source.categorySlug) {
+          const c = await categoriesCol.doc(source.categorySlug as string).get()
+          resolved.categoryName = c.data()?.name ?? null
+        }
+        if ("locationSlug" in source) {
+          const locationSlug = source.locationSlug as string | null
+          const l = locationSlug ? await locationsCol.doc(locationSlug).get() : null
+          resolved.locationName = l?.exists ? (l.data()!.name as string) : null
+        }
+        return resolved
+      }
+
+      const base = snap.exists
+        ? snap.data()!
+        : {
+            status: "draft",
+            locationSlug: null,
+            locationName: null,
+            publishedAt: null,
+            createdAt: new Date(),
+            ...(await withDenormalizedFields(create ?? {})),
+          }
+      const merged = { ...base, ...(await withDenormalizedFields(update)) }
+      await ref.set(merged)
+      return { id: ref.id, slug: ref.id, ...merged }
+    },
+    async findUnique({ where }: { where: { slug: string } }) {
+      const snap = await guidesCol.doc(where.slug).get()
+      return snap.exists ? { id: snap.id, slug: snap.id, ...snap.data() } : null
+    },
+  },
+
+  review: {
+    /** Seed reviews use a deterministic doc ID so re-running the seed script is idempotent. */
+    async upsert({ where, create }: { where: { id: string }; update: Json; create: Json }) {
+      await reviewsCol.doc(where.id).set({
+        rating: create.rating,
+        body: create.body,
+        authorName: create.authorName,
+        guideSlug: create.guideSlug ?? null,
+        expertSlug: create.expertSlug ?? null,
+        createdAt: new Date(),
+      })
+    },
+  },
+}
 
 async function main() {
   // ── Locations ──────────────────────────────────────────────────
@@ -12,7 +128,8 @@ async function main() {
     create: { name: "City Centre", slug: "city-centre" },
   });
 
-  const westCambridge = await db.location.upsert({
+  // Not referenced by any current guide, kept for future content.
+  await db.location.upsert({
     where: { slug: "west-cambridge" },
     update: {},
     create: { name: "West Cambridge", slug: "west-cambridge" },
@@ -159,7 +276,7 @@ async function main() {
       slug: "andy-family-dad",
       bio: "Dad of the family, working in IT. Has lived in Cambridge for 15 years and knows the best tech spots and parent-friendly pubs.",
       role: "IT Professional & Dad",
-      locationId: chesterton.id,
+      locationSlug: chesterton.id,
     },
   });
 
@@ -175,7 +292,7 @@ async function main() {
       slug: "teresa-family-mom",
       bio: "Mom of the family and local doctor (GP). Expert on healthcare, schools, and navigating Cambridge life with three active boys.",
       role: "GP & Mom",
-      locationId: chesterton.id,
+      locationSlug: chesterton.id,
     },
   });
 
@@ -187,7 +304,7 @@ async function main() {
       slug: "alex-family-son-10",
       bio: "Oldest of the three boys. Expert on skate parks, best ice cream spots, and the science museum.",
       role: "Junior Explorer",
-      locationId: chesterton.id,
+      locationSlug: chesterton.id,
     },
   });
 
@@ -199,7 +316,7 @@ async function main() {
       slug: "max-family-son-7",
       bio: "Middle brother. Knows all the best playgrounds and where to spot cows on the common.",
       role: "Playground Expert",
-      locationId: chesterton.id,
+      locationSlug: chesterton.id,
     },
   });
 
@@ -211,7 +328,7 @@ async function main() {
       slug: "leo-family-son-4",
       bio: "The youngest. Expert on the best ducks to feed and where to find the biggest puddles.",
       role: "Toddler-at-Large",
-      locationId: chesterton.id,
+      locationSlug: chesterton.id,
     },
   });
 
@@ -220,39 +337,42 @@ async function main() {
   // ── Guides (existing — reassigning to family) ──────────────────
   await db.guide.upsert({
     where: { slug: "cycling-cambridge-beginners-guide" },
-    update: { authorId: andy.id },
+    update: { authorSlug: andy.id },
     create: {
       title: "Cycling Cambridge: A Beginner's Guide",
       slug: "cycling-cambridge-beginners-guide",
+      status: "published",
       body: `Cambridge is one of the most cycle-friendly cities in the UK. With over 50% of residents commuting by bike, getting around on two wheels is both practical and joyful.\n\n## Where to Hire a Bike\n\nIf you don't have your own bike yet, Rutland Cycling near the train station offers day and weekly rentals. Alternatively, the city's Beryl bike-share scheme has stations across the centre.\n\n## Key Routes\n\n**Station to City Centre:** Follow Hills Road then turn onto Regent Street — mostly flat and well-signposted.\n\n**The Backs:** A scenic path behind the main colleges. Take a detour along the river for the classic Cambridge view.\n\n**West Cambridge:** Huntingdon Road is wide and has a dedicated cycle lane, perfect for reaching the science parks.\n\n## Safety Tips\n\n- Always lock your bike — theft is common near the market square.\n- Use lights at night; police do give fines without them.\n- Watch for pedestrians stepping out from between parked cars on King Street.`,
-      authorId: andy.id,
-      categoryId: gettingAround.id,
+      authorSlug: andy.id,
+      categorySlug: gettingAround.id,
       publishedAt: new Date("2026-04-01"),
     },
   });
 
   await db.guide.upsert({
     where: { slug: "best-cheap-eats-cambridge-students" },
-    update: { authorId: andy.id },
+    update: { authorSlug: andy.id },
     create: {
       title: "Best Cheap Eats in Cambridge for Students",
       slug: "best-cheap-eats-cambridge-students",
+      status: "published",
       body: `Living on a student budget doesn't mean sacrificing good food. Here are my favourite spots that won't drain your maintenance loan.\n\n## Market Square\n\nThe daily market (Mon–Sat) is your best friend. The falafel van has been there for years and does an enormous wrap for under £5. The fruit and veg stall on the north side sells produce cheaper than any supermarket in the city.\n\n## Gardenia\n\nThis tiny Greek-Cypriot café on Rose Crescent serves enormous portions of moussaka and kleftiko. Cash only, always packed at lunch — arrive by 12:15.\n\n## The Copper Kettle\n\nRight opposite King's College, the Copper Kettle looks touristy but is genuinely good value for a full English breakfast. Students get 10% off with a valid university card.\n\n## Honest Burgers\n\nA splurge, but their £10 lunch deal (burger + fries + soft drink) is hard to beat. The queues move fast.`,
-      authorId: andy.id,
-      categoryId: foodDrink.id,
+      authorSlug: andy.id,
+      categorySlug: foodDrink.id,
       publishedAt: new Date("2026-04-15"),
     },
   });
 
   await db.guide.upsert({
     where: { slug: "surviving-freshers-week-cambridge" },
-    update: { authorId: teresa.id },
+    update: { authorSlug: teresa.id },
     create: {
       title: "Surviving Freshers' Week at Cambridge",
       slug: "surviving-freshers-week-cambridge",
+      status: "published",
       body: `Freshers' Week at Cambridge — or Freshers' Fortnight, as it often feels — is overwhelming in the best possible way. Here's what I wish I'd known.\n\n## Pace Yourself\n\nYou don't need to attend every single event. The CUSU Freshers' Fair is non-negotiable — that's where you sign up for societies. Everything else is negotiable.\n\n## Your College, Not Just the University\n\nCambridge life is organised around colleges, not departments. Your college JCR (Junior Combination Room) will have social events, a welfare team, and resources. Get involved early.\n\n## The Academic Side Starts Fast\n\nUnlike many UK universities, Cambridge supervision work can begin in week one. Check your timetable the day you arrive and don't assume you have a grace week.\n\n## Find Your People\n\nCambridge can feel competitive. The best antidote is finding your niche early — a sport, a society, a casual study group. The friendships you make in freshers' week often last your whole degree.`,
-      authorId: teresa.id,
-      categoryId: studentLife.id,
+      authorSlug: teresa.id,
+      categorySlug: studentLife.id,
       publishedAt: new Date("2026-04-20"),
     },
   });
@@ -288,9 +408,9 @@ Avoid Saturday lunchtime in summer — the tourist coaches descend and the place
 Benet Street runs between King's Parade and Free School Lane. The entrance is through a stone archway into the courtyard — do not miss it by going straight to the front bar, which is fine but lacks the character of the yard-facing rooms.
 
 The Eagle is not the cheapest pub in Cambridge, but it is one of those places you should visit properly at least once — linger over a pint in the DNA Bar and think about what was figured out around the corner.`,
-      authorId: andy.id,
-      categoryId: foodDrink.id,
-      locationId: cityCenter.id,
+      authorSlug: andy.id,
+      categorySlug: foodDrink.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-03-10"),
     },
   });
@@ -323,9 +443,9 @@ A short, seasonal menu served lunchtimes and evenings. Nothing elaborate — a p
 From the city centre, walk down Parkside past the police station, turn left onto Prospect Row, and look for the small sign. It is genuinely easy to miss, which is part of the point. If you are cycling, there is a rack on the street outside.
 
 The Free Press is what a neighbourhood pub should be. Go on a Tuesday evening, nurse a pint of something local, and enjoy the rare Cambridge experience of not being able to hear anyone at the next table.`,
-      authorId: teresa.id,
-      categoryId: nightlife.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: nightlife.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-03-18"),
     },
   });
@@ -358,9 +478,9 @@ Mill Road is Cambridge's most genuinely cosmopolitan street, and the Blue reflec
 Gwydir Street is parallel to Mill Road, running behind it on the east side. The Blue is roughly halfway down. It is not served by a bus stop directly, but Mill Road is walkable from the city centre in twenty minutes or cyclable in five.
 
 Opening hours are generous — they open at noon most days and last orders is late enough to make an evening of it. The kitchen closes around 9 pm.`,
-      authorId: teresa.id,
-      categoryId: nightlife.id,
-      locationId: millRoad.id,
+      authorSlug: teresa.id,
+      categorySlug: nightlife.id,
+      locationSlug: millRoad.id,
       publishedAt: new Date("2026-03-25"),
     },
   });
@@ -396,9 +516,9 @@ Aromi now has a second location on Market Passage, near the covered market. It h
 ## Getting There
 
 Benet Street is a short walk from King's Parade and Corpus Christi College. It is pedestrianised most of the day, so you will be approaching on foot.`,
-      authorId: andy.id,
-      categoryId: foodDrink.id,
-      locationId: cityCenter.id,
+      authorSlug: andy.id,
+      categorySlug: foodDrink.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-02"),
     },
   });
@@ -431,9 +551,9 @@ These are limited, which is honest. There is a smoked cauliflower option and the
 A concise list of American-style craft beers on tap, plus a bourbon and whiskey selection that rewards exploration. The house margarita is better than it needs to be.
 
 The restaurant is small — around 40 covers — and the décor is stripped-back industrial. It is loud when full, which adds to the atmosphere rather than detracting from it.`,
-      authorId: alex.id,
-      categoryId: foodDrink.id,
-      locationId: cityCenter.id,
+      authorSlug: alex.id,
+      categorySlug: foodDrink.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-08"),
     },
   });
@@ -467,9 +587,9 @@ They do a full range of bread and pastries that are worth exploring beyond the b
 The main branch is at 52 Trumpington Street, a few minutes' walk south of the city centre. There is a second location on St John's Street. The original is the correct choice if you have the option.
 
 They open at 8 am on weekdays. The Chelsea buns sell out on popular days — if it is a Saturday afternoon in June, do not assume there will be any left.`,
-      authorId: andy.id,
-      categoryId: foodDrink.id,
-      locationId: cityCenter.id,
+      authorSlug: andy.id,
+      categorySlug: foodDrink.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-12"),
     },
   });
@@ -502,9 +622,9 @@ Gwydir Street is popular for laptop workers and has adequate plug sockets for a 
 ## The Roastery
 
 Hot Numbers sells bags of their roasted coffee to take home, and they run occasional cupping sessions open to the public. Check their website for dates — these are worth attending if you want to understand why the same bean can taste completely different depending on how it is prepared.`,
-      authorId: teresa.id,
-      categoryId: foodDrink.id,
-      locationId: millRoad.id,
+      authorSlug: teresa.id,
+      categorySlug: foodDrink.id,
+      locationSlug: millRoad.id,
       publishedAt: new Date("2026-04-14"),
     },
   });
@@ -538,9 +658,9 @@ The café serves good seasonal lunches and the kind of cake that justifies the w
 The Discovery Centre runs activities for children through school holidays and at weekends. The pond dipping and seed identification sessions are consistently popular.
 
 There is no better place in Cambridge for a slow, purposeful hour away from the traffic and the tourist clusters of the centre.`,
-      authorId: andy.id,
-      categoryId: parksNature.id,
-      locationId: trumpington.id,
+      authorSlug: andy.id,
+      categorySlug: parksNature.id,
+      locationSlug: trumpington.id,
       publishedAt: new Date("2026-04-18"),
     },
   });
@@ -573,9 +693,9 @@ The museum is closed on Mondays. Opening hours are 10 am to 5 pm Tuesday to Satu
 The café in the courtyard serves good lunches and is a civilised option for a midday break. Tables in the courtyard itself are available in warmer weather.
 
 There is no reason not to visit. Free, excellent, and twenty minutes on foot from almost anywhere in the city.`,
-      authorId: andy.id,
-      categoryId: cultureMuseums.id,
-      locationId: cityCenter.id,
+      authorSlug: andy.id,
+      categorySlug: cultureMuseums.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-22"),
     },
   });
@@ -610,9 +730,9 @@ The Backs is where punt hire operators are concentrated. Scudamore's and Cambrid
 ## Timing
 
 October and late March are the most pleasant months for walking the Backs: good light, manageable crowds, and the college gardens transitioning between seasons. August is the most crowded and the least enjoyable.`,
-      authorId: teresa.id,
-      categoryId: parksNature.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: parksNature.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-25"),
     },
   });
@@ -650,9 +770,9 @@ Bus frequency drops sharply after 7 pm and significantly after 9 pm. Late night 
 ## Park & Ride
 
 Cambridge has five Park & Ride sites — Trumpington, Babraham Road, Newmarket Road, Milton, and Madingley Road. All are connected to the city centre by frequent buses and are considerably cheaper than parking in town. If you are driving in from outside Cambridge, these are worth using.`,
-      authorId: teresa.id,
-      categoryId: gettingAround.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: gettingAround.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-28"),
     },
   });
@@ -687,9 +807,9 @@ Quick-release wheels and saddles are popular targets separately from the bike it
 ## Registration
 
 Register your bike on BikeRegister, photograph the frame and note the serial number. It will not prevent theft but it significantly increases the chances of recovery and supports a police report if you need one.`,
-      authorId: andy.id,
-      categoryId: gettingAround.id,
-      locationId: cityCenter.id,
+      authorSlug: andy.id,
+      categorySlug: gettingAround.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-30"),
     },
   });
@@ -722,9 +842,9 @@ From the Silver Street punts, heading north through the Backs towards Magdalene 
 ## When to Go
 
 Weekday mornings from April to June offer the best combination of good weather odds, manageable crowds, and available boats. August weekends are the opposite of this.`,
-      authorId: alex.id,
-      categoryId: gettingAround.id,
-      locationId: cityCenter.id,
+      authorSlug: alex.id,
+      categorySlug: gettingAround.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-05-01"),
     },
   });
@@ -759,9 +879,9 @@ Letting agents in Cambridge vary significantly in quality. The University's acco
 Check cycle storage before signing anything. In a city where the bike is your primary transport, a flat with nowhere to store a bike securely is a serious problem.
 
 Energy Performance Certificates matter in older Cambridge terraces, which can be badly insulated. An EPC rating of D or below on a Victorian terrace usually means expensive heating bills.`,
-      authorId: teresa.id,
-      categoryId: housingAccommodation.id,
-      locationId: millRoad.id,
+      authorSlug: teresa.id,
+      categorySlug: housingAccommodation.id,
+      locationSlug: millRoad.id,
       publishedAt: new Date("2026-05-02"),
     },
   });
@@ -802,9 +922,9 @@ Energy Performance Certificates matter in older Cambridge terraces, which can be
 ## What to Avoid
 
 Very central Cambridge addresses — CB2 postcodes closest to the market and colleges — are expensive and noisy during tourist season. Unless you specifically need to be within five minutes of the centre, the areas above offer much better value and quality of life.`,
-      authorId: teresa.id,
-      categoryId: settlingIn.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: settlingIn.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
     },
   });
@@ -845,9 +965,9 @@ Late applications go into a second round and significantly reduce your chances o
 ## Practical Advice
 
 Talk to parents in your prospective neighbourhood before relying solely on Ofsted reports. A good Ofsted rating from a few years ago may not reflect current conditions, and vice versa. The best intelligence on what a school is actually like in a particular year comes from parents who have children there now.`,
-      authorId: teresa.id,
-      categoryId: schoolsEducation.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: schoolsEducation.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
     },
   });
@@ -884,9 +1004,9 @@ Boots Pharmacy on Sidney Street has an NHS-funded minor ailments service that tr
 ## What Happens After Registration
 
 Most surgeries offer online booking via the NHS App or their patient portal. Routine appointments book up quickly — request them several days in advance. For urgent same-day appointments, call from 8am when slots are released. For continuity on long-term conditions, bring a summary letter from your previous GP when you first register — it speeds up records transfer and ensures repeat prescriptions are not interrupted.`,
-      authorId: teresa.id,
-      categoryId: healthcare.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: healthcare.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
     },
   });
@@ -925,9 +1045,9 @@ Most surgeries offer online booking via the NHS App or their patient portal. Rou
 ## What to Avoid
 
 Very central Cambridge addresses — CB2 postcodes closest to the market and colleges — are expensive and noisy during tourist season. Unless you specifically need to be within five minutes of the centre, the areas above offer much better value and quality of life.`,
-      authorId: andy.id,
-      categoryId: settlingIn.id,
-      locationId: cityCenter.id,
+      authorSlug: andy.id,
+      categorySlug: settlingIn.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
     },
   });
@@ -960,9 +1080,9 @@ The souvenir and tourist section has grown over the years and takes up more of t
 ## Practical
 
 The market is busiest between 10am and 1pm. Arrive before 10am for the full choice at the food stalls. The surrounding streets become very congested at lunchtime — approaching on foot or by bike is easier than by car or bus.`,
-      authorId: alex.id,
-      categoryId: shopping.id,
-      locationId: cityCenter.id,
+      authorSlug: alex.id,
+      categorySlug: shopping.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-05"),
     },
   });
@@ -993,9 +1113,9 @@ Jesus Green is north of the city centre, accessed from Victoria Avenue or Jesus 
 ## Cost
 
 Free. No booking required. Bring a towel and arrive prepared for variable water temperatures.`,
-      authorId: max.id,
-      categoryId: sportsFitness.id,
-      locationId: cityCenter.id,
+      authorSlug: max.id,
+      categorySlug: sportsFitness.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-10"),
     },
   });
@@ -1020,9 +1140,9 @@ When it rains, Chesterton Recreation Ground has the best puddles for jumping. Yo
 ## The Cows
 
 The cows on Coe Fen are very big but they are friendly. They just want to eat the grass. Don't touch them, just wave!`,
-      authorId: leo.id,
-      categoryId: parksNature.id,
-      locationId: chesterton.id,
+      authorSlug: leo.id,
+      categorySlug: parksNature.id,
+      locationSlug: chesterton.id,
       publishedAt: new Date("2026-05-01"),
     },
   });
@@ -1062,9 +1182,9 @@ In Cambridge's rental market, good properties go within 24–48 hours. Have your
 For buying, a typical terraced house in CB1 is listed at £400,000–550,000; semi-detached in Chesterton or Cherry Hinton at £450,000–600,000. The spring market (March–June) is the most competitive.
 
 Instruct your solicitor before your offer is accepted. The same small pool of Cambridge conveyancers handles most local transactions, and good ones book up fast in a rising market.`,
-      authorId: andy.id,
-      categoryId: estateAgentsProperty.id,
-      locationId: cityCenter.id,
+      authorSlug: andy.id,
+      categorySlug: estateAgentsProperty.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
     },
   });
@@ -1101,9 +1221,9 @@ Boots Pharmacy on Sidney Street has an NHS-funded minor ailments service that tr
 ## What Happens After Registration
 
 Most surgeries offer online booking via the NHS App or their patient portal. Routine appointments book up quickly — request them several days in advance. For urgent same-day appointments, call from 8am when slots are released. For continuity on long-term conditions, bring a summary letter from your previous GP when you first register — it speeds up records transfer and ensures repeat prescriptions are not interrupted.`,
-      authorId: teresa.id,
-      categoryId: healthcare.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: healthcare.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
     },
   });
@@ -1144,9 +1264,9 @@ Two locks are non-negotiable. Budget £60–90 for a good D-lock (Kryptonite, Ab
 ## The Cycling Community
 
 Cambridge Cycling Campaign (Camcycle) runs events, advocates for infrastructure improvements, and maintains the best map of recommended cycle routes through the city — including quieter back-street options that are not obvious to newcomers. Their website is a practical first resource.`,
-      authorId: andy.id,
-      categoryId: cycling.id,
-      locationId: cityCenter.id,
+      authorSlug: andy.id,
+      categorySlug: cycling.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
     },
   });
@@ -1183,9 +1303,9 @@ Cambridge City Council runs alternate fortnightly collections: one week blue (re
 ## Broadband
 
 Full-fibre broadband is available on most Cambridge streets. Providers include BT/EE via Openreach, Virgin Media, and Community Fibre. Standard superfast packages run £25–35 per month. Many Cambridge rentals include broadband in all-bills-included arrangements — clarify this with your landlord before setting up a separate contract.`,
-      authorId: teresa.id,
-      categoryId: settlingIn.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: settlingIn.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
     },
   });
@@ -1224,9 +1344,9 @@ Cambridge Astronomical Society, University public lecture series (open to non-me
 Mill Road Winter Fair in early December is the best single event for getting a feel for the Mill Road community. Cherry Hinton Village Festival, Midsummer Fair, and college Open Days throughout the year provide reasons to engage with different parts of the city.
 
 WhatsApp neighbourhood groups and the Cambridge Community Forum on Facebook are where practical Cambridge conversation happens — useful for finding a plumber, asking about local services, or understanding what that helicopter was doing at 2am.`,
-      authorId: teresa.id,
-      categoryId: settlingIn.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: settlingIn.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
     },
   });
@@ -1263,9 +1383,9 @@ Cambridge Station and Cambridge North (Chesterton) provide excellent regional ac
 ## Shopping Without a Car
 
 The central city is walkable for most shopping. Tesco Express, Co-op, and various independent grocery shops are scattered throughout the residential postcodes; you are rarely more than ten minutes from a food shop by bike. For large grocery shops, a cargo bike trailer or a good backpack is practical. For large deliveries — furniture, appliances — order direct; almost everything delivers to Cambridge without difficulty given the city's proximity to major logistics hubs.`,
-      authorId: teresa.id,
-      categoryId: gettingAround.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: gettingAround.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-05-03"),
     },
   });
@@ -1299,9 +1419,9 @@ Jesus Green is north of the city centre, accessed from Victoria Avenue or Jesus 
 ## Cost
 
 Free. No booking required. Bring a towel and arrive prepared for variable water temperatures.`,
-      authorId: teresa.id,
-      categoryId: sportsFitness.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: sportsFitness.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-10"),
     },
   });
@@ -1332,9 +1452,9 @@ The hilliest of the Cambridge area options — relatively unusual in this flat p
 ## How to Register
 
 Register once at parkrun.org.uk, receive a barcode, and show up. Print your barcode or use the app. Results are sent by email within a few hours and your times are tracked permanently. Volunteering is straightforward and valued — the events depend on a roster of weekly volunteers.`,
-      authorId: teresa.id,
-      categoryId: sportsFitness.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: sportsFitness.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-16"),
     },
   });
@@ -1361,9 +1481,9 @@ Cambridge's traditional form of competitive rowing is Bumps — a format unique 
 ## The River
 
 The upper Cam (above Jesus Lock) is where most rowing takes place. It is shared with punts, kayaks, and narrow boats, which requires constant vigilance. Priority conventions exist but are not universally understood. Sunday mornings are the best time for a clear river.`,
-      authorId: alex.id,
-      categoryId: sportsFitness.id,
-      locationId: chesterton.id,
+      authorSlug: alex.id,
+      categorySlug: sportsFitness.id,
+      locationSlug: chesterton.id,
       publishedAt: new Date("2026-04-20"),
     },
   });
@@ -1397,9 +1517,9 @@ The souvenir and tourist section has grown over the years and takes up more of t
 ## Practical
 
 The market is busiest between 10am and 1pm. Arrive before 10am for the full choice at the food stalls. The surrounding streets become very congested at lunchtime — approaching on foot or by bike is easier than by car or bus.`,
-      authorId: andy.id,
-      categoryId: shopping.id,
-      locationId: cityCenter.id,
+      authorSlug: andy.id,
+      categorySlug: shopping.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-05"),
     },
   });
@@ -1426,9 +1546,9 @@ The covered market represents a form of retail that is increasingly rare: small,
 ## Hours and Access
 
 The covered market is open six days a week, typically 9am–5:30pm Monday to Saturday. Some individual traders keep shorter hours. The market is accessible and undercover, which makes it a practical destination year-round.`,
-      authorId: andy.id,
-      categoryId: shopping.id,
-      locationId: cityCenter.id,
+      authorSlug: andy.id,
+      categorySlug: shopping.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-09"),
     },
   });
@@ -1458,9 +1578,9 @@ The contemporary gallery extension (reopened 2018) sits adjacent to the house an
 Castle Street is a short walk from Magdalene Bridge. The house is closed on Mondays. Gallery and cafe hours vary — check the website before visiting. The café is small but good.
 
 Free entry to the gallery; house visits are free but require a timed slot from the desk.`,
-      authorId: andy.id,
-      categoryId: cultureMuseums.id,
-      locationId: castleHill.id,
+      authorSlug: andy.id,
+      categorySlug: cultureMuseums.id,
+      locationSlug: castleHill.id,
       publishedAt: new Date("2026-04-19"),
     },
   });
@@ -1487,9 +1607,9 @@ The Footlights revue appears at the ADC each year, typically in late spring befo
 ## Booking
 
 The ADC box office is online or by phone. Some shows sell out quickly, particularly the Footlights revue and popular musicals. Booking a few days in advance is sensible for anything in the final week of a run.`,
-      authorId: teresa.id,
-      categoryId: cultureMuseums.id,
-      locationId: cityCenter.id,
+      authorSlug: teresa.id,
+      categorySlug: cultureMuseums.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-24"),
     },
   });
@@ -1519,9 +1639,9 @@ Most of the better Cambridge bars have been mentioned in the pub guides. For lat
 ## Practical
 
 Cambridge closes early by metropolitan standards. Last entry at most clubs is 2am; last orders are 3am at the latest. Pre-drinking at someone's college or flat is the norm. Panther Taxis is reliable at the end of the night; Uber can be unpredictable at peak hours.`,
-      authorId: andy.id,
-      categoryId: nightlife.id,
-      locationId: cityCenter.id,
+      authorSlug: andy.id,
+      categorySlug: nightlife.id,
+      locationSlug: cityCenter.id,
       publishedAt: new Date("2026-04-21"),
     },
   });
@@ -1555,9 +1675,9 @@ The walk can also be done by punt. Scudamore's operates a one-way punt hire from
 ## When to Go
 
 May to September for the full meadow experience. November to February for bracing solitude and unobstructed views. Avoid August weekend afternoons if you want peace.`,
-      authorId: andy.id,
-      categoryId: parksNature.id,
-      locationId: newnham.id,
+      authorSlug: andy.id,
+      categorySlug: parksNature.id,
+      locationSlug: newnham.id,
       publishedAt: new Date("2026-04-26"),
     },
   });
@@ -1584,9 +1704,9 @@ The surrounding parkland is a straightforward community green space with play eq
 ## Getting There
 
 Cherry Hinton Hall is accessible from the Citi 1 bus (towards Addenbrooke's and Trumpington) — stop at Queen Edith's Way, then walk south. By bicycle from the city centre takes around 15–20 minutes via Queen Edith's Way.`,
-      authorId: andy.id,
-      categoryId: parksNature.id,
-      locationId: cherryHinton.id,
+      authorSlug: andy.id,
+      categorySlug: parksNature.id,
+      locationSlug: cherryHinton.id,
       publishedAt: new Date("2026-04-29"),
     },
   });
@@ -1628,54 +1748,54 @@ Cherry Hinton Hall is accessible from the Citi 1 bus (towards Addenbrooke's and 
 
   const reviewSeeds = [
     // Guide reviews
-    { rating: 5, body: "Exactly what I needed in my first week. The two-lock rule saved my bike within a month — my neighbour ignored it and lost theirs. Brilliant, practical guide.", authorName: "Jamie F.", guideId: cyclingGuide.id },
-    { rating: 5, body: "The falafel van at the market is a game changer. This guide is accurate and the Copper Kettle tip with the student discount is genuinely useful.", authorName: "Priya T.", guideId: cheapEatsGuide.id },
-    { rating: 4, body: "Honest and reassuring. The point about supervision work starting in week one is something nobody told me — I wish I'd read this before arriving.", authorName: "Noah C.", guideId: freshersGuide.id },
-    { rating: 5, body: "The DNA Bar ceiling stopped me in my tracks. The context about the airmen makes it hit completely differently. Superb guide — I've sent it to everyone visiting Cambridge.", authorName: "Margaret H.", guideId: eagleGuide.id },
-    { rating: 5, body: "I've been coming to The Free Press for three years and this description is exactly right. \"Go on a Tuesday evening\" is genuinely the best advice. Nobody should change this pub.", authorName: "Daniel A.", guideId: freePresssGuide.id },
-    { rating: 5, body: "The winter garden tip is inspired — I never would have thought to go in January, but the snowdrops were extraordinary. Completely changed how I use this place.", authorName: "Linh P.", guideId: botanicGuide.id },
-    { rating: 5, body: "I've lived in Cambridge for two years and never been. This finally got me through the door. The Degas pastels are stunning and the Cézanne card players is exactly as described.", authorName: "Thomas W.", guideId: fitzGuide.id },
-    { rating: 4, body: "The timing advice is gold. Got there at 8am on a Tuesday in October and had the King's view entirely to myself. Everyone I know gets there at 2pm in August and complains.", authorName: "Sara K.", guideId: backsGuide.id },
-    { rating: 5, body: "Moved from Vienna last year and this guide described my experience exactly. The section on EPC ratings for Victorian terraces would have saved me a very cold winter if I'd read it first.", authorName: "Klaus M.", guideId: rentingGuide.id },
-    { rating: 4, body: "The punting technique description is accurate. I fell in twice but that's my fault, not the guide's. The Grantchester trip was the best afternoon I've had in Cambridge.", authorName: "Alex R.", guideId: puntingGuide.id },
-    { rating: 5, body: "The Orchard Tea Garden in May is exactly as described — apple trees, deckchairs, and the most civilised afternoon imaginable. This walk should be in every Cambridge guide.", authorName: "Emma B.", guideId: grantchesterGuide.id },
-    { rating: 4, body: "The secondhand books section is real and wonderful. Found a 1960s local history book I'd been looking for for months. Go on a weekday morning to find the best stuff before it goes.", authorName: "Robert D.", guideId: marketGuide.id },
-    { rating: 5, body: "Rutland Cycling has a good range — I rented a hybrid for a week and it was exactly what I needed to explore the city. Brilliant starting point for anyone new to cycling here.", authorName: "Yi L.", guideId: cyclingGuide.id },
-    { rating: 3, body: "Good overview but slightly outdated on prices — the falafel wrap was closer to £6 when I went. Still the best value option in the centre by a mile.", authorName: "Jack O.", guideId: cheapEatsGuide.id },
+    { rating: 5, body: "Exactly what I needed in my first week. The two-lock rule saved my bike within a month — my neighbour ignored it and lost theirs. Brilliant, practical guide.", authorName: "Jamie F.", guideSlug: cyclingGuide.id },
+    { rating: 5, body: "The falafel van at the market is a game changer. This guide is accurate and the Copper Kettle tip with the student discount is genuinely useful.", authorName: "Priya T.", guideSlug: cheapEatsGuide.id },
+    { rating: 4, body: "Honest and reassuring. The point about supervision work starting in week one is something nobody told me — I wish I'd read this before arriving.", authorName: "Noah C.", guideSlug: freshersGuide.id },
+    { rating: 5, body: "The DNA Bar ceiling stopped me in my tracks. The context about the airmen makes it hit completely differently. Superb guide — I've sent it to everyone visiting Cambridge.", authorName: "Margaret H.", guideSlug: eagleGuide.id },
+    { rating: 5, body: "I've been coming to The Free Press for three years and this description is exactly right. \"Go on a Tuesday evening\" is genuinely the best advice. Nobody should change this pub.", authorName: "Daniel A.", guideSlug: freePresssGuide.id },
+    { rating: 5, body: "The winter garden tip is inspired — I never would have thought to go in January, but the snowdrops were extraordinary. Completely changed how I use this place.", authorName: "Linh P.", guideSlug: botanicGuide.id },
+    { rating: 5, body: "I've lived in Cambridge for two years and never been. This finally got me through the door. The Degas pastels are stunning and the Cézanne card players is exactly as described.", authorName: "Thomas W.", guideSlug: fitzGuide.id },
+    { rating: 4, body: "The timing advice is gold. Got there at 8am on a Tuesday in October and had the King's view entirely to myself. Everyone I know gets there at 2pm in August and complains.", authorName: "Sara K.", guideSlug: backsGuide.id },
+    { rating: 5, body: "Moved from Vienna last year and this guide described my experience exactly. The section on EPC ratings for Victorian terraces would have saved me a very cold winter if I'd read it first.", authorName: "Klaus M.", guideSlug: rentingGuide.id },
+    { rating: 4, body: "The punting technique description is accurate. I fell in twice but that's my fault, not the guide's. The Grantchester trip was the best afternoon I've had in Cambridge.", authorName: "Alex R.", guideSlug: puntingGuide.id },
+    { rating: 5, body: "The Orchard Tea Garden in May is exactly as described — apple trees, deckchairs, and the most civilised afternoon imaginable. This walk should be in every Cambridge guide.", authorName: "Emma B.", guideSlug: grantchesterGuide.id },
+    { rating: 4, body: "The secondhand books section is real and wonderful. Found a 1960s local history book I'd been looking for for months. Go on a weekday morning to find the best stuff before it goes.", authorName: "Robert D.", guideSlug: marketGuide.id },
+    { rating: 5, body: "Rutland Cycling has a good range — I rented a hybrid for a week and it was exactly what I needed to explore the city. Brilliant starting point for anyone new to cycling here.", authorName: "Yi L.", guideSlug: cyclingGuide.id },
+    { rating: 3, body: "Good overview but slightly outdated on prices — the falafel wrap was closer to £6 when I went. Still the best value option in the centre by a mile.", authorName: "Jack O.", guideSlug: cheapEatsGuide.id },
     // Expert reviews
-    { rating: 5, body: "Andy's IT and dad tips are very helpful. He knows all the practical stuff for families.", authorName: "Chloe N.", expertId: andyExpert.id },
-    { rating: 5, body: "Teresa's advice on GPs and schools was a lifesaver for our move.", authorName: "Fatima A.", expertId: teresaExpert.id },
-    { rating: 5, body: "Alex (10) knows the best stuff for kids. My son loved the museum tip.", authorName: "Ben H.", expertId: alexExpert.id },
-    { rating: 5, body: "Max (7) is right about the cows! Great for younger children.", authorName: "Catriona F.", expertId: maxExpert.id },
-    { rating: 5, body: "Leo (4) found the best puddles according to my toddler.", authorName: "Hugo S.", expertId: leoExpert.id },
-    { rating: 4, body: "Highly recommend following this family's guides if you have kids in Cambridge.", authorName: "Miriam T.", expertId: teresaExpert.id },
+    { rating: 5, body: "Andy's IT and dad tips are very helpful. He knows all the practical stuff for families.", authorName: "Chloe N.", expertSlug: andyExpert.id },
+    { rating: 5, body: "Teresa's advice on GPs and schools was a lifesaver for our move.", authorName: "Fatima A.", expertSlug: teresaExpert.id },
+    { rating: 5, body: "Alex (10) knows the best stuff for kids. My son loved the museum tip.", authorName: "Ben H.", expertSlug: alexExpert.id },
+    { rating: 5, body: "Max (7) is right about the cows! Great for younger children.", authorName: "Catriona F.", expertSlug: maxExpert.id },
+    { rating: 5, body: "Leo (4) found the best puddles according to my toddler.", authorName: "Hugo S.", expertSlug: leoExpert.id },
+    { rating: 4, body: "Highly recommend following this family's guides if you have kids in Cambridge.", authorName: "Miriam T.", expertSlug: teresaExpert.id },
   ];
 
   for (const seed of reviewSeeds) {
     await db.review.upsert({
       where: {
-        id: `seed-review-${seed.authorName.toLowerCase().replace(/[^a-z]/g, "-")}-${seed.guideId ?? seed.expertId ?? ""}`,
+        id: `seed-review-${seed.authorName.toLowerCase().replace(/[^a-z]/g, "-")}-${seed.guideSlug ?? seed.expertSlug ?? ""}`,
       },
       update: {},
       create: {
-        id: `seed-review-${seed.authorName.toLowerCase().replace(/[^a-z]/g, "-")}-${seed.guideId ?? seed.expertId ?? ""}`,
+        id: `seed-review-${seed.authorName.toLowerCase().replace(/[^a-z]/g, "-")}-${seed.guideSlug ?? seed.expertSlug ?? ""}`,
         rating: seed.rating,
         body: seed.body,
         authorName: seed.authorName,
-        guideId: seed.guideId ?? null,
-        expertId: seed.expertId ?? null,
+        guideSlug: seed.guideSlug ?? null,
+        expertSlug: seed.expertSlug ?? null,
       },
     });
   }
 
   console.log(
-    "Seed complete: 8 locations, 14 categories, 12 experts, 35 guides, 20 reviews"
+    "Seed complete: 8 locations, 14 categories, 5 experts, 36 guides, 20 reviews"
   );
 }
 
 main()
+  .then(() => process.exit(0))
   .catch((e) => {
-    console.error(e);
-    process.exit(1);
+    console.error(e)
+    process.exit(1)
   })
-  .finally(() => db.$disconnect());

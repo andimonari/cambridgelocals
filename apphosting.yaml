@@ -1,0 +1,47 @@
+# Firebase App Hosting build & runtime config.
+# Docs: https://firebase.google.com/docs/app-hosting/configure
+#
+# FIREBASE_PROJECT_ID / server-side Firestore & Auth access don't need a
+# value here: App Hosting backends run with Application Default Credentials
+# for their own project, which firebase-admin picks up automatically.
+
+runConfig:
+  minInstances: 0
+  maxInstances: 1
+
+env:
+  # Public — safe to expose to the browser. Firebase web API keys identify
+  # the project; they don't grant access on their own.
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyBtLVW0HAJZid3JPCj9ai4DjJH_LPcxH5I
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: cambridgelocals.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: cambridgelocals
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_BASE_URL
+    value: https://cambridgelocals.web.app
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: AUTH_EMAIL_FROM
+    value: "Cambridge Locals <noreply@cambridgelocals.com>"
+    availability:
+      - RUNTIME
+
+  # AUTH_RESEND_KEY is intentionally omitted — it powers optional guide
+  # publish/reject email notifications (src/lib/mailer.ts), which just log
+  # to the console when the var is unset. To wire up real email later,
+  # create the secret and add it back as a secret-backed variable:
+  #   firebase apphosting:secrets:set auth-resend-key
+  #   - variable: AUTH_RESEND_KEY
+  #     secret: auth-resend-key
+  #     availability: [RUNTIME]

@@ -10,7 +10,7 @@ export default function Image() {
     (
       <div
         style={{
-          background: "linear-gradient(135deg, #4338ca 0%, #6366f1 50%, #818cf8 100%)",
+          background: "linear-gradient(160deg, #1d1d1f 0%, #1d1d1f 55%, #0071e3 140%)",
           width: "100%",
           height: "100%",
           display: "flex",
@@ -22,10 +22,10 @@ export default function Image() {
       >
         <div
           style={{
-            fontSize: 24,
-            fontWeight: 600,
-            color: "rgba(255,255,255,0.7)",
-            letterSpacing: "0.05em",
+            fontSize: 22,
+            fontWeight: 500,
+            color: "rgba(255,255,255,0.65)",
+            letterSpacing: "0.08em",
             marginBottom: 16,
             textTransform: "uppercase",
           }}
@@ -35,9 +35,10 @@ export default function Image() {
         <div
           style={{
             fontSize: 64,
-            fontWeight: 800,
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
             color: "#ffffff",
-            lineHeight: 1.1,
+            lineHeight: 1.08,
             marginBottom: 24,
             maxWidth: 800,
           }}
@@ -47,7 +48,7 @@ export default function Image() {
         <div
           style={{
             fontSize: 28,
-            color: "rgba(255,255,255,0.85)",
+            color: "rgba(255,255,255,0.8)",
             maxWidth: 700,
             lineHeight: 1.4,
           }}

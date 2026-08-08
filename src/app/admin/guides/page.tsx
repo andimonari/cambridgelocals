@@ -1,7 +1,7 @@
-import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { db } from "@/lib/db"
+import { getCurrentUser } from "@/lib/session"
+import { getExpertByUserId, getSubmittedGuides } from "@/lib/db"
 import { ROUTES } from "@/lib/routes"
 import AdminGuideActions from "./AdminGuideActions"
 import { formatDisplayName } from "@/lib/display-name"
@@ -11,40 +11,32 @@ export const metadata = {
 }
 
 export default async function AdminGuidesPage() {
-  const session = await auth()
-  if (!session?.user) redirect(ROUTES.signIn)
+  const user = await getCurrentUser()
+  if (!user) redirect(ROUTES.signIn)
 
-  const expert = await db.expert.findFirst({ where: { userId: session.user.id } })
+  const expert = await getExpertByUserId(user.uid)
   if (!expert || expert.role !== "admin") {
     redirect(ROUTES.dashboard)
   }
 
-  const submitted = await db.guide.findMany({
-    where: { status: "submitted" },
-    orderBy: { createdAt: "asc" },
-    include: {
-      author: true,
-      category: true,
-      location: true,
-    },
-  })
+  const submitted = await getSubmittedGuides()
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
-      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
-          <Link href={ROUTES.dashboard} className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+    <div className="min-h-screen bg-white text-foreground">
+      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-xl border-b border-line-soft">
+        <div className="max-w-[880px] mx-auto px-6 h-14 flex items-center gap-3">
+          <Link href={ROUTES.dashboard} className="text-sm text-muted hover:text-foreground transition-colors">
             ← Dashboard
           </Link>
-          <span className="text-gray-300">/</span>
-          <span className="text-sm font-medium text-gray-900">Guide review</span>
+          <span className="text-line">/</span>
+          <span className="text-sm font-medium text-foreground">Guide review</span>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Guide review</h1>
-          <p className="text-gray-500 mt-1 text-sm">
+      <main className="max-w-[880px] mx-auto px-6 py-12">
+        <div className="mb-9">
+          <h1 className="text-3xl font-semibold text-foreground tracking-tight">Guide review</h1>
+          <p className="text-muted mt-1.5 text-sm">
             {submitted.length === 0
               ? "No guides awaiting review."
               : `${submitted.length} guide${submitted.length === 1 ? "" : "s"} awaiting review`}
@@ -52,29 +44,29 @@ export default async function AdminGuidesPage() {
         </div>
 
         {submitted.length === 0 ? (
-          <div className="py-16 text-center border border-dashed border-gray-200 rounded-lg">
-            <p className="text-gray-400 text-sm">All caught up — no submitted guides.</p>
+          <div className="py-20 text-center border border-dashed border-line rounded-2xl">
+            <p className="text-subtle text-sm">All caught up — no submitted guides.</p>
           </div>
         ) : (
           <ul className="space-y-4">
             {submitted.map((guide) => (
-              <li key={guide.id} className="border border-gray-200 rounded-lg p-5">
+              <li key={guide.slug} className="border border-line-soft rounded-2xl p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <h2 className="font-semibold text-gray-900 text-base truncate">{guide.title}</h2>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                      <span>by {formatDisplayName(guide.author.name)}</span>
+                    <h2 className="font-semibold text-foreground text-base truncate">{guide.title}</h2>
+                    <div className="flex items-center gap-2 mt-1.5 text-xs text-muted">
+                      <span>by {formatDisplayName(guide.authorName)}</span>
                       <span>·</span>
-                      <span>{guide.category.name}</span>
-                      {guide.location && (
+                      <span>{guide.categoryName}</span>
+                      {guide.locationName && (
                         <>
                           <span>·</span>
-                          <span>{guide.location.name}</span>
+                          <span>{guide.locationName}</span>
                         </>
                       )}
                       <span>·</span>
                       <span>
-                        {new Date(guide.createdAt).toLocaleDateString("en-GB", {
+                        {guide.createdAt.toLocaleDateString("en-GB", {
                           day: "numeric",
                           month: "short",
                           year: "numeric",
@@ -82,10 +74,10 @@ export default async function AdminGuidesPage() {
                       </span>
                     </div>
                   </div>
-                  <AdminGuideActions guideId={guide.id} guideTitle={guide.title} />
+                  <AdminGuideActions guideSlug={guide.slug} guideTitle={guide.title} />
                 </div>
 
-                <div className="mt-4 text-sm text-gray-700 border-t border-gray-100 pt-4 whitespace-pre-wrap line-clamp-6">
+                <div className="mt-5 text-sm text-foreground/80 border-t border-line-soft pt-5 whitespace-pre-wrap line-clamp-6">
                   {guide.body}
                 </div>
               </li>
