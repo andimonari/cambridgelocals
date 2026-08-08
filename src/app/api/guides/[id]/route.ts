@@ -1,6 +1,10 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { GuideStatus } from "@/generated/prisma/client"
+import { ROUTES } from "@/lib/routes"
+import { sendGuideStatusEmail } from "@/lib/mailer"
+
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.cambridgelocals.com"
 
 export async function PATCH(
   request: Request,
@@ -15,7 +19,7 @@ export async function PATCH(
 
   const guide = await db.guide.findUnique({
     where: { id },
-    include: { author: true },
+    include: { author: { include: { user: true } } },
   })
   if (!guide) {
     return Response.json({ error: "Guide not found" }, { status: 404 })
@@ -61,6 +65,14 @@ export async function PATCH(
       data: { status: GuideStatus.published, publishedAt: new Date() },
     })
     console.log(`[guides] Guide published: "${updated.title}" (id=${updated.id}) by admin ${expert.name}`)
+    if (guide.author.user?.email) {
+      await sendGuideStatusEmail({
+        to: guide.author.user.email,
+        guideTitle: updated.title,
+        guideUrl: `${baseUrl}${ROUTES.guide(updated.slug)}`,
+        status: "published",
+      })
+    }
     return Response.json(updated)
   }
 
@@ -70,6 +82,14 @@ export async function PATCH(
       data: { status: GuideStatus.rejected, publishedAt: null },
     })
     console.log(`[guides] Guide rejected: "${updated.title}" (id=${updated.id}) by admin ${expert.name}`)
+    if (guide.author.user?.email) {
+      await sendGuideStatusEmail({
+        to: guide.author.user.email,
+        guideTitle: updated.title,
+        guideUrl: `${baseUrl}${ROUTES.guide(updated.slug)}`,
+        status: "rejected",
+      })
+    }
     return Response.json(updated)
   }
 

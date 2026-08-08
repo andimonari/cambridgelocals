@@ -7,6 +7,7 @@ import { ROUTES } from "@/lib/routes"
 import { SiteNav } from "@/components/SiteNav"
 import { renderMarkdown } from "@/lib/markdown"
 import { formatDisplayName } from "@/lib/display-name"
+import ReviewForm from "./ReviewForm"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -170,13 +171,16 @@ export default async function GuideDetailPage({ params }: Props) {
         />
 
         {/* Reviews */}
-        {guide.reviews.length > 0 && (
-          <section className="mt-12 pt-8 border-t border-gray-100">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Reader reviews
+        <section className="mt-12 pt-8 border-t border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Reader reviews
+            {guide.reviews.length > 0 && (
               <span className="ml-2 text-sm font-normal text-gray-400">({guide.reviews.length})</span>
-            </h2>
-            <ul className="space-y-6">
+            )}
+          </h2>
+
+          {guide.reviews.length > 0 && (
+            <ul className="space-y-6 mb-6">
               {guide.reviews.map((review) => (
                 <li key={review.id} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
@@ -189,8 +193,10 @@ export default async function GuideDetailPage({ params }: Props) {
                 </li>
               ))}
             </ul>
-          </section>
-        )}
+          )}
+
+          <ReviewForm guideId={guide.id} />
+        </section>
 
         {/* Back link */}
         <div className="mt-12 pt-8 border-t border-gray-100">
